@@ -47,7 +47,7 @@ set(VIENNALS_BUILD_VIENNAHRLE ON CACHE BOOL "Whether ViennaHRLE should be instal
 set(ViennaHRLE_DIR "${INSTALL_DIR}/ViennaHRLE/lib/cmake/ViennaHRLE")
 set(
   ViennaHRLE_DIR ${ViennaHRLE_DIR}
-  CACHE PATH "Path to ViennaHRLE installation")
+  CACHE PATH "Path to ViennaHRLE installation" FORCE)
 
 message(STATUS ${ViennaHRLE_DIR})
 
