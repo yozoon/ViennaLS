@@ -18,7 +18,7 @@ externalproject_add(vtk-external
   # Hash of tags/v9.1.0
   GIT_TAG #v9.1.0
     285daeedd58eb890cb90d6e907d822eea3d2d092
-  # GIT_SHALLOW 1
+  GIT_SHALLOW 1
   TMP_DIR
     "${DEPENDENCIES_DIR}/tmp/${VTK_EXTERNAL_INSTALL}"
   STAMP_DIR
