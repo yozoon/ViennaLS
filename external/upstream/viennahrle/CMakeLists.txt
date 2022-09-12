@@ -48,5 +48,7 @@ set(
   ViennaHRLE_DIR "${INSTALL_DIR}/ViennaHRLE/lib/cmake/ViennaHRLE"
   CACHE PATH "Path to ViennaHRLE installation"
   )
+message(STATUS ${ViennaHRLE_DIR})
+
 # add to buildDependencies target
 add_dependencies(buildDependencies viennahrle-external)
