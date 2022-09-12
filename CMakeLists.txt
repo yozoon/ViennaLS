@@ -39,18 +39,60 @@ option(VIENNALS_USE_VTK "Build with VTK file support." ON)
 find_package(OpenMP REQUIRED)
 list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 
-## build dependencies
-set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/dependencies)
-# if using external VTK build because it takes long to rebuild
-# move value of VTK_DIR to cache so it is not overwritten
-# by external project
-if(DEFINED ${VTK_DIR})
-  set(VTK_DIR ${VTK_DIR} CACHE PATH "Path to VTK installation")
+#################################################
+# Check VTK Dependency
+#################################################
+if(VIENNALS_USE_VTK)
+  if(DEFINED ${VTK_DIR})
+    # Move value of VTK_DIR to cache so it is not overwritten
+    # by externalproject
+    # set(VTK_DIR ${VTK_DIR} CACHE PATH "Path to VTK installation")
+    find_package(VTK REQUIRED COMPONENTS
+      vtkCommonCore
+      vtkCommonDataModel
+      vtkIOXML
+      PATHS ${VTK_DIR})
+    message(STATUS "VTK_DIR: ${VTK_DIR}")
+  else()
+    find_package(VTK COMPONENTS
+      vtkCommonCore
+      vtkCommonDataModel
+      vtkIOXML)
+    if(VTK_FOUND)
+      message(STATUS "Found VTK at ${VTK_DIR}.")
+    else()
+      message(STATUS "Couldn't find VTK. Dependency will be built during the first invokation of the build system (e.g. `make`).")
+    endif()
+  endif()
 endif()
 
+# Export value of VTK_FOUND to cache so that the CMakeLists in external/upstream can use it
+set(VTK_FOUND ${VTK_FOUND} CACHE BOOL OFF)
+
+#################################################
+# Check ViennaHRLE Dependency
+#################################################
 if(DEFINED ${ViennaHRLE_DIR})
-  set(ViennaHRLE_DIR ${ViennaHRLE_DIR} CACHE PATH "Path to ViennaHRLE")
+  # Move value of VTK_DIR to cache so it is not overwritten
+  # by externalproject
+  # set(ViennaHRLE_DIR ${ViennaHRLE_DIR} CACHE PATH "Path to ViennaHRLE installation")
+  find_package(ViennaHRLE REQUIRED
+    PATHS ${ViennaHRLE_DIR})
+  message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
+else()
+  find_package(ViennaHRLE)
+  if(ViennaHRLE_FOUND)
+    message(STATUS "Found ViennaHRLE at ${ViennaHRLE_DIR}.")
+  else()
+    message(STATUS "Couldn't find ViennaHRLE. Dependency will be built during the first invokation of the build system (e.g. `make`).")
+  endif()
 endif()
+
+# Export value of ViennaHRLE_FOUND to cache so that the CMakeLists in external/upstream can use it
+set(ViennaHRLE_FOUND ${ViennaHRLE_FOUND} CACHE BOOL OFF)
+
+## build dependencies
+set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/dependencies)
 
 if(DEFINED ${pybind11_DIR})
   set(pybind11_DIR ${pybind11_DIR} CACHE PATH "Path to pybind11")
@@ -64,7 +106,6 @@ add_subdirectory(external/upstream)
 
 # VTK File type support
 if(VIENNALS_USE_VTK)
-  find_package(VTK QUIET PATHS ${VTK_DIR} NO_DEFAULT_PATH)
   if(VTK_FOUND)
     message(STATUS "Found VTK")
     add_compile_definitions(VIENNALS_USE_VTK)
