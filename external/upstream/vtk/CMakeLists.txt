@@ -44,8 +44,7 @@ externalproject_add(vtk-external
     -DVTK_Group_Rendering=OFF
     -DModule_vtkIOXML=ON
     -DVTK_RENDERING_BACKEND=None
-  BUILD_COMMAND
-    "cmake --build --parallel ${NPROC} ."
+  BUILD_COMMAND ${CMAKE_COMMAND} --build . --parallel ${NPROC}
   # No install needed
   INSTALL_COMMAND
     ""
