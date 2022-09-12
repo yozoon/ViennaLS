@@ -41,7 +41,7 @@ externalproject_add(viennahrle-external
 # Get install and build directory
 externalproject_get_property(viennahrle-external INSTALL_DIR BINARY_DIR)
 
-set(ViennaHRLE_DIR "${INSTALL_DIR}" #lib/cmake/ViennaHRLE")
+set(ViennaHRLE_DIR "${INSTALL_DIR}/lib/cmake/ViennaHRLE")
 set(
   ViennaHRLE_DIR ${ViennaHRLE_DIR}
   CACHE PATH "Path to ViennaHRLE installation" FORCE)
