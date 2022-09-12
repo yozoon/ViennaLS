@@ -8,6 +8,10 @@ else()
   set(VTK_EXTERNAL_INSTALL "vtk-external")
 endif()
 
+# Get the number of cores
+include(ProcessorCount)
+ProcessorCount(NPROC)
+
 externalproject_add(vtk-external
   GIT_REPOSITORY
     https://gitlab.kitware.com/vtk/vtk.git
@@ -40,8 +44,8 @@ externalproject_add(vtk-external
     -DVTK_Group_Rendering=OFF
     -DModule_vtkIOXML=ON
     -DVTK_RENDERING_BACKEND=None
-  # BUILD_COMMAND
-    # "cmake --build . -- -j 4"
+  BUILD_COMMAND
+    "cmake --build . -- -j ${NPROC}"
   # No install needed
   INSTALL_COMMAND
     ""
