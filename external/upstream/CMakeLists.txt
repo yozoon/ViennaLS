@@ -16,6 +16,7 @@ if(NOT ViennaHRLE_FOUND)
 endif()
 
 # build pybind11 if no path was specified
-# if(NOT DEFINED pybind11_DIR OR VIENNALS_BUILD_PYBIND11)
+# if(NOT pybind11_FOUND)
 #     add_subdirectory(pybind11)
+#     message(STATUS "pybind11_DIR: ${pybind11_DIR}")
 # endif()

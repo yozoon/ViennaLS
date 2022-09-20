@@ -37,28 +37,25 @@ list(APPEND VIENNALS_INCLUDE_DIRS ${VIENNAHRLE_INCLUDE_DIRS})
 
 if(@VIENNALS_USE_VTK@)
   set(VTK_DIR @VTK_DIR@)
-  find_package (VTK QUIET PATHS ${VTK_DIR} NO_DEFAULT_PATH)
 
-  if(VTK_FOUND)
-    #message(STATUS "Found VTK")
-    add_compile_definitions(VIENNALS_USE_VTK)
+  # If VIENNALS_USE_VTK is set to true, we expect vtk to be found. Otherwise throw an error.
+  find_package (VTK REQUIRED PATHS ${VTK_DIR} NO_DEFAULT_PATH)
 
-    # use VTK_USE_FILE for older versions of VTK
-    if (VTK_VERSION VERSION_LESS "8.90")
-      message(STATUS "Using old VTK Version: ${VTK_VERSION}")
-      include(${VTK_USE_FILE})
-    endif()
+  #message(STATUS "Found VTK")
+  add_compile_definitions(VIENNALS_USE_VTK)
 
-    # only link needed vtk libraries for static builds
-    # if(VIENNALS_STATIC_BUILD)
-    #   set(VTK_LIBRARIES vtksys;vtkIOCore;vtkexpat;vtklz4;vtkzlib;vtklzma;vtkdoubleconversion;vtkCommonMisc;vtkCommonSystem;vtkIOXML;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;vtkCommonExecutionModel;vtkCommonDataModel;vtkCommonColor;vtkIOXMLParser;vtkIOCore;vtkCommonMisc;vtkCommonComputationalGeometry;vtkCommonTransforms;vtkCommonMath;)
-    # endif(VIENNALS_STATIC_BUILD)
-    
-    list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
-    list(APPEND VIENNALS_PYTHON_LIBRARIES ${VTK_LIBRARIES})
-  else(VTK_FOUND)
-    message(STATUS "No VTK install found: Building without VTK support.")
-  endif(VTK_FOUND)
+  # use VTK_USE_FILE for older versions of VTK
+  if (VTK_VERSION VERSION_LESS "8.90")
+    message(STATUS "Using old VTK Version: ${VTK_VERSION}")
+    set(VTK_LIBRARIES vtksys;vtkIOCore;vtkexpat;vtklz4;vtkzlib;vtklzma;vtkdoubleconversion;vtkCommonMisc;vtkCommonSystem;vtkIOXML;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;vtkCommonExecutionModel;vtkCommonDataModel;vtkCommonColor;vtkIOXMLParser;vtkIOCore;vtkCommonMisc;vtkCommonComputationalGeometry;vtkCommonTransforms;vtkCommonMath;)
+    include(${VTK_USE_FILE})
+  else()
+    # For newer versions of VTK, only the target syntax is supported. This also automatically adds the vtk include directories.
+    set(VTK_LIBRARIES VTK::CommonCore;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;)
+  endif()
+  
+  list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
+  list(APPEND VIENNALS_PYTHON_LIBRARIES ${VTK_LIBRARIES})
 endif()
 
 if(@VIENNALS_BUILD_SHARED_LIBS@)

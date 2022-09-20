@@ -2,33 +2,15 @@ externalproject_add(viennahrle-external
   GIT_REPOSITORY
   https://github.com/ViennaTools/ViennaHRLE
   GIT_SHALLOW 1 # use --depth 1 when cloning
-#   GIT_TAG
-#     96e6fa9b3ff245e4d51d49f23d40e9ad8774e85e
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-    # -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-    # -DCMAKE_CXX_EXTENSIONS=${CMAKE_CXX_EXTENSIONS}
-    # -DCMAKE_CXX_STANDARD_REQUIRED=${CMAKE_CXX_STANDARD_REQUIRED}
-    # #-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    # -DBUILD_TESTING=OFF
-    # -DBUILD_EXAMPLES=OFF
-    # #
-    # -DVTK_WRAP_PYTHON=OFF
-    # #-DVTK_PYTHON_VERSION=3.5
-    # -DVTK_LEGACY_REMOVE=ON
-    # -DVTK_Group_StandAlone=OFF
-    # -DVTK_Group_Rendering=OFF
-    # -DModule_vtkIOXML=ON
-    # -DVTK_RENDERING_BACKEND=None
-  # BUILD_COMMAND
-  #   make -j 9
-  # No install needed
-#   INSTALL_COMMAND
-#     "make install"
-#  UPDATE_COMMAND
-#    ""
+    -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+    -DCMAKE_CXX_EXTENSIONS=${CMAKE_CXX_EXTENSIONS}
+    -DCMAKE_CXX_STANDARD_REQUIRED=${CMAKE_CXX_STANDARD_REQUIRED}
+    -DVIENNAHRLE_BUILD_EXAMPLES=OFF
+    -DVIENNAHRLE_BUILD_TESTS=OFF
   USES_TERMINAL_DOWNLOAD
     1
   USES_TERMINAL_UPDATE
@@ -41,10 +23,23 @@ externalproject_add(viennahrle-external
 # Get install and build directory
 externalproject_get_property(viennahrle-external INSTALL_DIR BINARY_DIR)
 
-set(ViennaHRLE_DIR "${INSTALL_DIR}/ViennaHRLE/")
 set(
-  ViennaHRLE_DIR ${ViennaHRLE_DIR}
-  CACHE PATH "Path to ViennaHRLE installation" FORCE)
+    ViennaHRLE_DIR "${INSTALL_DIR}"
+  CACHE PATH "Path to ViennaHRLE installation"
+  FORCE
+  )
 
+set(
+  ViennaHRLE_INCLUDEDIR "${ViennaHRLE_DIR}/include"
+  CACHE PATH "Path to ViennaHRLE include directories"
+  FORCE
+  )
+
+set(
+  ViennaHRLE_LIBRARYDIR "${ViennaHRLE_DIR}/lib"
+  CACHE PATH "Path to ViennaHRLE library directories"
+  FORCE
+  )
+  
 # add to buildDependencies target
 add_dependencies(buildDependencies viennahrle-external)

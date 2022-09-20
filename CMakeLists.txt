@@ -44,9 +44,6 @@ list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 #################################################
 if(VIENNALS_USE_VTK)
   if(DEFINED ${VTK_DIR})
-    # Move value of VTK_DIR to cache so it is not overwritten
-    # by externalproject
-    # set(VTK_DIR ${VTK_DIR} CACHE PATH "Path to VTK installation")
     find_package(VTK REQUIRED COMPONENTS
       vtkCommonCore
       vtkCommonDataModel
@@ -61,7 +58,7 @@ if(VIENNALS_USE_VTK)
     if(VTK_FOUND)
       message(STATUS "Found VTK at ${VTK_DIR}.")
     else()
-      message(STATUS "Couldn't find VTK. Dependency will be built during the first invokation of the build system (e.g. `make`).")
+      message(STATUS "Couldn't find VTK. Dependency will be built with the buildDependencies target (e.g. `make buildDependencies`).")
     endif()
   endif()
 endif()
@@ -73,9 +70,6 @@ set(VTK_FOUND ${VTK_FOUND} CACHE BOOL OFF)
 # Check ViennaHRLE Dependency
 #################################################
 if(DEFINED ${ViennaHRLE_DIR})
-  # Move value of VTK_DIR to cache so it is not overwritten
-  # by externalproject
-  # set(ViennaHRLE_DIR ${ViennaHRLE_DIR} CACHE PATH "Path to ViennaHRLE installation")
   find_package(ViennaHRLE REQUIRED
     PATHS ${ViennaHRLE_DIR})
   message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
@@ -84,7 +78,7 @@ else()
   if(ViennaHRLE_FOUND)
     message(STATUS "Found ViennaHRLE at ${ViennaHRLE_DIR}.")
   else()
-    message(STATUS "Couldn't find ViennaHRLE. Dependency will be built during the first invokation of the build system (e.g. `make`).")
+    message(STATUS "Couldn't find ViennaHRLE. Dependency will be built with the buildDependencies target (e.g. `make buildDependencies`).")
   endif()
 endif()
 
@@ -106,34 +100,25 @@ add_subdirectory(external/upstream)
 
 # VTK File type support
 if(VIENNALS_USE_VTK)
-  if(VTK_FOUND)
-    message(STATUS "Found VTK")
     add_compile_definitions(VIENNALS_USE_VTK)
 
     # use VTK_USE_FILE for older versions of VTK
     if (VTK_VERSION VERSION_LESS "8.90")
       message(STATUS "Using old VTK Version: ${VTK_VERSION}")
+      set(VTK_LIBRARIES vtksys;vtkIOCore;vtkexpat;vtklz4;vtkzlib;vtklzma;vtkdoubleconversion;vtkCommonMisc;vtkCommonSystem;vtkIOXML;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;vtkCommonExecutionModel;vtkCommonDataModel;vtkCommonColor;vtkIOXMLParser;vtkIOCore;vtkCommonMisc;vtkCommonComputationalGeometry;vtkCommonTransforms;vtkCommonMath;)
       include(${VTK_USE_FILE})
+    else()
+      # For newer versions of VTK, only the target syntax is supported. This also automatically adds the vtk include directories.
+      set(VTK_LIBRARIES VTK::CommonCore;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;)
     endif()
 
     # only link needed vtk libraries for static builds
     if(VIENNALS_STATIC_BUILD)
-      # set(VTK_LIBRARIES vtksys;vtkIOCore;vtkexpat;vtklz4;vtkzlib;vtklzma;vtkdoubleconversion;vtkCommonMisc;vtkCommonSystem;vtkIOXML;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;vtkCommonExecutionModel;vtkCommonDataModel;vtkCommonColor;vtkIOXMLParser;vtkIOCore;vtkCommonMisc;vtkCommonComputationalGeometry;vtkCommonTransforms;vtkCommonMath;)
-
       message(STATUS "Static build: Linking static VTK libraries")
-      # message(STATUS "Static build: Only linking ${VTK_LIBRARIES}")
-      # vtksys;vtkCommonCore;vtkCommonMath;vtkCommonMisc;vtkCommonSystem;vtkCommonTransforms;vtkCommonDataModel;vtkCommonColor;vtkCommonExecutionModel;vtkCommonComputationalGeometry;vtkFiltersCore;vtkFiltersGeneral;vtkImagingCore;vtkImagingFourier;vtkFiltersStatistics;vtkFiltersExtraction;vtkInfovisCore;vtkFiltersGeometry;vtkFiltersSources;vtkRenderingCore;vtkzlib;vtkfreetype;vtkRenderingFreeType;vtkRenderingContext2D;vtkChartsCore;vtkDICOMParser;vtkdoubleconversion;vtklz4;vtklzma;vtkIOCore;vtkIOLegacy;vtkexpat;vtkIOXMLParser;vtkDomainsChemistry;vtkglew;vtkRenderingOpenGL2;vtkDomainsChemistryOpenGL2;vtkIOXML;vtkParallelCore;vtkFiltersAMR;vtkFiltersFlowPaths;vtkFiltersGeneric;vtkImagingSources;vtkFiltersHybrid;vtkFiltersHyperTree;vtkImagingGeneral;vtkFiltersImaging;vtkFiltersModeling;vtkFiltersParallel;vtkFiltersParallelImaging;vtkFiltersPoints;vtkFiltersProgrammable;vtkFiltersSMP;vtkFiltersSelection;vtkFiltersTexture;vtkFiltersTopology;verdict;vtkFiltersVerdict;vtkmetaio;vtkjpeg;vtkpng;vtktiff;vtkIOImage;vtkImagingHybrid;vtkInfovisLayout;vtkInteractionStyle;vtkImagingColor;vtkRenderingAnnotation;vtkRenderingVolume;vtkInteractionWidgets;vtkViewsCore;vtklibproj;vtkGeovisCore;vtkhdf5_src;vtkhdf5_hl_src;vtkIOAMR;vtkIOAsynchronous;vtkpugixml;vtkIOCityGML;vtkIOEnSight;vtknetcdf;vtkexodusII;vtkIOExodus;vtkgl2ps;vtkRenderingGL2PSOpenGL2;vtkIOExport;vtkIOExportOpenGL2;vtklibharu;vtkIOExportPDF;vtkIOGeometry;vtkIOImport;vtklibxml2;vtkIOInfovis;vtkIOLSDyna;vtkIOMINC;vtkogg;vtktheora;vtkIOMovie;vtkIONetCDF;vtkIOPLY;vtkjsoncpp;vtkIOParallel;vtkIOParallelXML;vtksqlite;vtkIOSQL;vtkIOSegY;vtkIOTecplotTable;vtkIOVeraOut;vtkIOVideo;vtkImagingMath;vtkImagingMorphological;vtkImagingStatistics;vtkImagingStencil;vtkInteractionImage;vtkRenderingContextOpenGL2;vtkRenderingImage;vtkRenderingLOD;vtkRenderingLabel;vtkRenderingVolumeOpenGL2;vtkViewsContext2D;vtkViewsInfovis
     endif(VIENNALS_STATIC_BUILD)
 
     list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
     list(APPEND VIENNALS_PYTHON_LIBRARIES ${VTK_LIBRARIES})
-
-  else(VTK_FOUND)
-    message(STATUS "No VTK install found: Building without VTK support.")
-    # set(VIENNALS_USE_VTK OFF CACHE BOOL "" FORCE)
-    # need to unset, so if vtk is built in first step, it is found the second time cmake ..  is run
-    unset(VTK_DIR CACHE)
-  endif(VTK_FOUND)
 endif(VIENNALS_USE_VTK)
 
 
