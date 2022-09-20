@@ -148,7 +148,11 @@ else(VIENNALS_BUILD_SHARED_LIBS)
 endif(VIENNALS_BUILD_SHARED_LIBS)
 
 # set the correct paths for installation
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/")
+endif()
 set(LOCAL_CONFIG_DIR "lib/cmake/${PROJECT_NAME}")
+
 
 # Adding the install interface generator expression makes sure that the include
 # files are installed to the proper location (provided by GNUInstallDirs)
