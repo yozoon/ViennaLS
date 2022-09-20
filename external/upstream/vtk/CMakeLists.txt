@@ -86,5 +86,9 @@ set(
   VTK_DIR ${VTK_DIR}
   CACHE PATH "Path to VTK installation" FORCE)
 
+set(
+  VTK_VERSION 9.1.0 CACHE STRING "VTK Version" FORCE
+)
+
 # add to buildDependencies target
 add_dependencies(buildDependencies vtk-external)
