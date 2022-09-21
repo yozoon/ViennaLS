@@ -101,6 +101,7 @@ add_subdirectory(external/upstream)
 # VTK File type support
 if(VIENNALS_USE_VTK)
     add_compile_definitions(VIENNALS_USE_VTK)
+    # TODO: we should add a ViennaLS_VTK target, so that projects that depend on ViennaLS can detect whether ViennaLS was built with VTK support or not.
 
     # use VTK_USE_FILE for older versions of VTK
     if (VTK_VERSION VERSION_LESS "8.90")
