@@ -44,17 +44,25 @@ list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 #################################################
 if(VIENNALS_USE_VTK)
   if(DEFINED ${VTK_DIR})
-    find_package(VTK REQUIRED COMPONENTS
-      vtkCommonCore
-      vtkCommonDataModel
-      vtkIOXML
+    find_package (VTK REQUIRED COMPONENTS
+      VTK::CommonCore
+      VTK::IOCore
+      VTK::IOXML
+      VTK::IOXMLParser
+      VTK::FiltersCore
+      VTK::FiltersGeneral
+      VTK::FiltersGeometry
       PATHS ${VTK_DIR})
     message(STATUS "VTK_DIR: ${VTK_DIR}")
   else()
     find_package(VTK QUIET COMPONENTS
-      vtkCommonCore
-      vtkCommonDataModel
-      vtkIOXML)
+      VTK::CommonCore
+      VTK::IOCore
+      VTK::IOXML
+      VTK::IOXMLParser
+      VTK::FiltersCore
+      VTK::FiltersGeneral
+      VTK::FiltersGeometry)
     if(VTK_FOUND)
       message(STATUS "Found VTK at ${VTK_DIR}.")
     else()
