@@ -40,7 +40,15 @@ if(@VIENNALS_USE_VTK@)
   set(VTK_DIR @VTK_DIR@)
 
   # If VIENNALS_USE_VTK is set to true, we expect vtk to be found. Otherwise throw an error.
-  find_package (VTK REQUIRED PATHS ${VTK_DIR} NO_DEFAULT_PATH)
+  find_package (VTK REQUIRED COMPONENTS
+    VTK::CommonCore
+    VTK::IOCore
+    VTK::IOXML
+    VTK::IOXMLParser
+    VTK::FiltersCore
+    VTK::FiltersGeneral
+    VTK::FiltersGeometry
+    PATHS ${VTK_DIR} NO_DEFAULT_PATH)
 
   #message(STATUS "Found VTK")
   add_compile_definitions(VIENNALS_USE_VTK)
