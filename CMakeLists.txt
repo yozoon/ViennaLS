@@ -51,7 +51,7 @@ if(VIENNALS_USE_VTK)
       PATHS ${VTK_DIR})
     message(STATUS "VTK_DIR: ${VTK_DIR}")
   else()
-    find_package(VTK COMPONENTS
+    find_package(VTK QUIET COMPONENTS
       vtkCommonCore
       vtkCommonDataModel
       vtkIOXML)
@@ -74,7 +74,7 @@ if(DEFINED ${ViennaHRLE_DIR})
     PATHS ${ViennaHRLE_DIR})
   message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
 else()
-  find_package(ViennaHRLE)
+  find_package(ViennaHRLE QUIET)
   if(ViennaHRLE_FOUND)
     message(STATUS "Found ViennaHRLE at ${ViennaHRLE_DIR}.")
   else()
