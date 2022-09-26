@@ -47,13 +47,12 @@ endif()
 
 # build dependencies
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/dependencies)
+# external project base directory for all projects in this hierarchy
+set_property(DIRECTORY PROPERTY EP_BASE ${DEPENDENCIES_DIR})
 
 # Include all external dependencies
 include(ExternalProject)
 add_subdirectory(external/upstream)
-
-# external project base directory for all projects in this hierarchy
-set_property(DIRECTORY PROPERTY EP_BASE ${DEPENDENCIES_DIR})
 
 list(APPEND VIENNALS_DEPENDENCIES "viennahrle_external")
 
@@ -84,5 +83,4 @@ ExternalProject_Add(
   CMAKE_CACHE_ARGS -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
                    -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
   BUILD_ALWAYS 1
-  INSTALL_COMMAND ""
-  TEST_EXCLUDE_FROM_MAIN TRUE)
+  INSTALL_COMMAND "")
