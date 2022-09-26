@@ -13,11 +13,11 @@ message(STATUS "VTK_DIR: ${VTK_DIR}")
 find_package(OpenMP REQUIRED)
 list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 
-find_package(ViennaHRLE CONFIG REQUIRED)
+find_package(ViennaHRLE CONFIG REQUIRED PATHS ${ViennaHRLE_DIR})
 
 if(VIENNALS_USE_VTK)
   find_package(
-    VTK CONFIG REQUIRED
+    VTK CONFIG REQUIRED PATHS ${VTK_DIR}
     # COMPONENTS VTK::CommonCore
     #            VTK::IOCore
     #            VTK::IOXML
@@ -128,22 +128,8 @@ option(VIENNALS_BUILD_PYTHON_2 "Build for python2.x." OFF)
 option(VIENNALS_BUILD_PYTHON_3 "Build for python3.x. Trumps python2.x build." OFF)
 
 if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
-  # include external project if not already set
-  if(NOT DEFINED pybind11_DIR OR VIENNALS_BUILD_PYBIND11)
-    add_subdirectory(external/upstream/pybind11)
-  endif()
-
   message(STATUS "pybind11_DIR: ${pybind11_DIR}")
-  find_package(pybind11 QUIET PATHS ${pybind11_DIR})
-  if(pybind11_FOUND)
-    add_subdirectory(Wrapping)
-  else()
-    message(
-      STATUS
-        "No pybind11 install found. If you did not specify a custom install path, you have to build the target pybind11-external."
-    )
-  endif()
-
+  find_package(pybind11 CONFIG REQUIRED PATHS ${pybind11_DIR})
 endif()
 
 # ##################################################################################################
