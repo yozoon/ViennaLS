@@ -2,31 +2,38 @@ cmake_minimum_required(VERSION 3.4)
 
 project(ViennaLSExamples)
 
-## Enable Clang sanitizer for debug builds
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=thread -fsanitize=memory" CACHE STRING "")
-  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUGS} -fno-omit-frame-pointer -fsanitize=address -fsanitize=thread -fsanitize=memory" CACHE STRING "")
+# Enable Clang sanitizer for debug builds
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS_DEBUG
+      "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=thread -fsanitize=memory"
+      CACHE STRING "")
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG
+      "${CMAKE_EXE_LINKER_FLAGS_DEBUGS} -fno-omit-frame-pointer -fsanitize=address -fsanitize=thread -fsanitize=memory"
+      CACHE STRING "")
 endif()
 
-MACRO(SUBDIRLIST result curdir)
-  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-  SET(dirlist "")
-  FOREACH(child ${children})
-    IF(IS_DIRECTORY ${curdir}/${child})
-      IF(NOT ${child} STREQUAL "build")
-        LIST(APPEND dirlist ${child})
-      ENDIF()
-    ENDIF()
-  ENDFOREACH()
-  SET(${result} ${dirlist})
-ENDMACRO()
+macro(SUBDIRLIST result curdir)
+  file(
+    GLOB children
+    RELATIVE ${curdir}
+    ${curdir}/*)
+  set(dirlist "")
+  foreach(child ${children})
+    if(IS_DIRECTORY ${curdir}/${child})
+      if(NOT ${child} STREQUAL "build")
+        list(APPEND dirlist ${child})
+      endif()
+    endif()
+  endforeach()
+  set(${result} ${dirlist})
+endmacro()
 
 add_custom_target(buildExamples)
 
 set(ViennaLS_DIR "${ViennaLS_BINARY_DIR}")
-set(ViennaLS_COMMON_TARGET ${PROJECT_NAME})
+# set(ViennaLS_COMMON_TARGET ${PROJECT_NAME})
 
-SUBDIRLIST(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
+subdirlist(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
 # add all examples
 foreach(subdir ${EXAMPLE_DIRS})
