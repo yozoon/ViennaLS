@@ -18,14 +18,9 @@ find_package(ViennaHRLE CONFIG REQUIRED PATHS ${ViennaHRLE_DIR})
 if(VIENNALS_USE_VTK)
   find_package(
     VTK CONFIG REQUIRED PATHS ${VTK_DIR}
-    # COMPONENTS VTK::CommonCore
-    #            VTK::IOCore
-    #            VTK::IOXML
-    #            VTK::IOXMLParser
-    #            VTK::FiltersCore
-    #            VTK::FiltersGeneral
-    #            VTK::FiltersGeometry
-    )
+    # COMPONENTS VTK::CommonCore VTK::IOCore VTK::IOXML VTK::IOXMLParser VTK::FiltersCore
+    # VTK::FiltersGeneral VTK::FiltersGeometry
+  )
 
   add_compile_definitions(VIENNALS_USE_VTK)
 
