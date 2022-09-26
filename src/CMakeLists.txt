@@ -7,10 +7,14 @@ set(CMAKE_CXX_STANDARD "17")
 
 include(GNUInstallDirs)
 
+message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
+message(STATUS "VTK_DIR: ${VTK_DIR}")
+
 find_package(OpenMP REQUIRED)
 list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 
 find_package(ViennaHRLE REQUIRED)
+
 if(VIENNALS_USE_VTK)
   find_package(
     VTK REQUIRED
