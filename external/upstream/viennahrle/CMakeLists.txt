@@ -34,17 +34,10 @@ else()
     # Get install and build directory
     ExternalProject_Get_Property(viennahrle_external INSTALL_DIR BINARY_DIR)
 
-    set(ViennaHRLE_DIR
-        "${INSTALL_DIR}"
-        CACHE PATH "Path to ViennaHRLE installation" FORCE)
-
-    set(ViennaHRLE_INCLUDEDIR
-        "${ViennaHRLE_DIR}/include"
-        CACHE PATH "Path to ViennaHRLE include directories" FORCE)
-
-    set(ViennaHRLE_LIBRARYDIR
-        "${ViennaHRLE_DIR}/lib"
-        CACHE PATH "Path to ViennaHRLE library directories" FORCE)
+    set(ViennaHRLE_DIR "${INSTALL_DIR}")
 
   endif()
+  set(ViennaHRLE_DIR
+      "${ViennaHRLE_DIR}"
+      CACHE PATH "Path to ViennaHRLE installation" FORCE)
 endif()

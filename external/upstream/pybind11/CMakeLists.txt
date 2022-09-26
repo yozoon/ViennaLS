@@ -42,9 +42,9 @@ else()
 
     # Get install and build directory
     ExternalProject_Get_Property(pybind11_external INSTALL_DIR BINARY_DIR)
-
-    set(pybind11_DIR
-        "${INSTALL_DIR}"
-        CACHE PATH "Path to pybind11 installation")
+    set(pybind11_DIR "${INSTALL_DIR}")
   endif()
+  set(pybind11_DIR
+      "${pybind11_DIR}"
+      CACHE PATH "Path to pybind11 installation" FORCE)
 endif()
