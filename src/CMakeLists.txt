@@ -10,6 +10,8 @@ include(GNUInstallDirs)
 message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
 message(STATUS "VTK_DIR: ${VTK_DIR}")
 
+set(ViennaLS_BINARY_DIR ${PROJECT_BINARY_DIR} CACHE)
+
 find_package(OpenMP REQUIRED)
 list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 
