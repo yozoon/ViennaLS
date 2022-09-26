@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 
-project(ViennaLS_core VERSION ${CMAKE_PROJECT_VERSION})
+project(ViennaLS VERSION ${CMAKE_PROJECT_VERSION})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD "17")
@@ -96,13 +96,13 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  "ViennaLSConfigVersion.cmake"
+  "${PROJECT_NAME}ConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY AnyNewerVersion)
 
 configure_package_config_file(
-  "${PROJECT_SOURCE_DIR}/cmake/ViennaLSConfig.cmake.in"
-  "${PROJECT_BINARY_DIR}/ViennaLSConfig.cmake" INSTALL_DESTINATION ${LOCAL_CONFIG_DIR})
+  "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" INSTALL_DESTINATION ${LOCAL_CONFIG_DIR})
 
 # ##################################################################################################
 # BUILD EXAMPLES
