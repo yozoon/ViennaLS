@@ -68,6 +68,7 @@ ExternalProject_Add(
              -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
              -DCMAKE_CXX_EXTENSIONS=${CMAKE_CXX_EXTENSIONS}
              -DCMAKE_CXX_STANDARD_REQUIRED=${CMAKE_CXX_STANDARD_REQUIRED}
+             -DCMAKE_PROJECT_VERSION=${PROJECT_VERSION}
              # Paths to dependencies
              -DViennaHRLE_DIR=${ViennaHRLE_DIR}
              -DVTK_DIR=${VTK_DIR}

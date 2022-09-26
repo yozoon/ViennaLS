@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 
-project(ViennaLS_core)
+project(ViennaLS_core VERSION ${CMAKE_PROJECT_VERSION})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD "17")
