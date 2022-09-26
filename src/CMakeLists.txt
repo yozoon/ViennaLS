@@ -13,18 +13,19 @@ message(STATUS "VTK_DIR: ${VTK_DIR}")
 find_package(OpenMP REQUIRED)
 list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 
-find_package(ViennaHRLE REQUIRED)
+find_package(ViennaHRLE CONFIG REQUIRED)
 
 if(VIENNALS_USE_VTK)
   find_package(
-    VTK REQUIRED
-    COMPONENTS VTK::CommonCore
-               VTK::IOCore
-               VTK::IOXML
-               VTK::IOXMLParser
-               VTK::FiltersCore
-               VTK::FiltersGeneral
-               VTK::FiltersGeometry)
+    VTK CONFIG REQUIRED
+    # COMPONENTS VTK::CommonCore
+    #            VTK::IOCore
+    #            VTK::IOXML
+    #            VTK::IOXMLParser
+    #            VTK::FiltersCore
+    #            VTK::FiltersGeneral
+    #            VTK::FiltersGeometry
+    )
 
   add_compile_definitions(VIENNALS_USE_VTK)
 
