@@ -1,5 +1,7 @@
 @PACKAGE_INIT@
 
+include(CMakeFindDependencyMacro)
+
 # ViennaLS requires C++17
 set(CMAKE_CXX_STANDARD "17")
 
