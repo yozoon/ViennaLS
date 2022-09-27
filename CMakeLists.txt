@@ -67,7 +67,7 @@ set(ViennaLS_BINARY_DIR
 find_package(OpenMP REQUIRED)
 list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 
-find_package(ViennaHRLE CONFIG REQUIRED PATHS ${ViennaHRLE_DIR})
+# find_package(ViennaHRLE CONFIG REQUIRED PATHS ${ViennaHRLE_DIR})
 
 message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
 message(STATUS "VTK_DIR: ${VTK_DIR}")
@@ -186,10 +186,10 @@ endif(VIENNALS_BUILD_TESTS)
 # ##################################################################################################
 # BUILD PYTHON MODULE
 # ##################################################################################################
-if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
-  message(STATUS "pybind11_DIR: ${pybind11_DIR}")
-  find_package(pybind11 CONFIG REQUIRED PATHS ${pybind11_DIR})
-endif()
+# if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
+#   message(STATUS "pybind11_DIR: ${pybind11_DIR}")
+#   find_package(pybind11 CONFIG REQUIRED PATHS ${pybind11_DIR})
+# endif()
 
 # ##################################################################################################
 # INSTALL
