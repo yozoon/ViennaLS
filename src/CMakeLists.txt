@@ -17,6 +17,9 @@ list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 
 find_package(ViennaHRLE CONFIG REQUIRED PATHS ${ViennaHRLE_DIR})
 
+message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
+message(STATUS "VTK_DIR: ${VTK_DIR}")
+
 if(VIENNALS_USE_VTK)
   find_package(
     VTK CONFIG REQUIRED PATHS ${VTK_DIR}
@@ -100,6 +103,8 @@ write_basic_package_version_file(
 configure_package_config_file(
   "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" INSTALL_DESTINATION ${LOCAL_CONFIG_DIR})
+
+message(STATUS ${VIENNALS_BUILD_INCLUDE_DIRS})
 
 # ##################################################################################################
 # BUILD EXAMPLES
