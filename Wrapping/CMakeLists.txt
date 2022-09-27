@@ -1,5 +1,7 @@
 # target for python module build
 
+# Can this be handled similarly to tests and examples, i.e. first configure project without the
+# python target, build the dependencies and then re-run the configuration to enable the target?
 ExternalProject_Add(
   viennaLSPython
   # DEPENDS

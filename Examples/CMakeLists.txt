@@ -7,8 +7,9 @@ include("${CMAKE_SOURCE_DIR}/cmake/prepare.cmake")
 # Point find_package to the binary directory instead of the install location
 find_package(ViennaLS CONFIG PATHS ${ViennaLS_BINARY_DIR})
 if(NOT ViennaLS_FOUND)
-  message(FATAL_ERROR "\
-One of the dependencies hasn't been built yet and thus can't be used by the buildExamples target.\n\
+  message(
+    FATAL_ERROR
+      "One of the dependencies hasn't been built yet and thus can't be used by the buildExamples target.\n\
 Try the following steps to fix the problem:\n\
 1. Turn off examples target by disabling the VIENNALS_BUILD_EXAMPLES option when configuring the project\n\
    (e.g. with the `-D VIENNALS_BUILD_EXAMPLES=OFF` flag)\n\

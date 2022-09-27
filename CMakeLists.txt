@@ -177,9 +177,8 @@ endif(VIENNALS_BUILD_TESTS)
 # ##################################################################################################
 # BUILD PYTHON MODULE
 # ##################################################################################################
-# if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
-#   add_subdirectory(Wrapping)
-# endif()
+# TODO: Properly integrate the python externalproject with this cmake configuration
+# if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3) add_subdirectory(Wrapping) endif()
 
 # ##################################################################################################
 # INSTALL
