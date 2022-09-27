@@ -4,7 +4,7 @@ project(ViennaLSExamples)
 
 include("${CMAKE_SOURCE_DIR}/cmake/prepare.cmake")
 
-find_package(ViennaLS CONFIG PATHS ${ViennaLS_BINARY_DIR})
+find_package(ViennaLS QUIET CONFIG PATHS ${ViennaLS_BINARY_DIR})
 if(NOT ViennaLS_FOUND)
   message(FATAL_ERROR "\
 One of the dependencies hasn't been built yet and thus can't be used by the buildExamples target.\n\

@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD "17")
 # compiler dependent settings for ViennaLS
 # ##################################################################################################
 if(OMP_PARALLELIZE)
-  find_package(OpenMP REQUIRED)
+  find_dependency(OpenMP REQUIRED)
   list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
 endif()
 
@@ -25,7 +25,7 @@ set(VIENNALS_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@")
 
 set(ViennaHRLE_DIR @ViennaHRLE_DIR@)
 
-find_package(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR} NO_DEFAULT_PATH)
+find_dependency(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR} NO_DEFAULT_PATH)
 list(APPEND VIENNALS_INCLUDE_DIRS ${VIENNAHRLE_INCLUDE_DIRS})
 
 set(VIENNALS_USE_VTK @VIENNALS_USE_VTK@)
@@ -33,9 +33,9 @@ if(@VIENNALS_USE_VTK@)
   set(VTK_DIR @VTK_DIR@)
 
   # If VIENNALS_USE_VTK is set to true, we expect vtk to be found. Otherwise throw an error.
-  # NO_DEFAULT_PATH ensures that the path is stored in cmake cache and consecutive find_package
+  # NO_DEFAULT_PATH ensures that the path is stored in cmake cache and consecutive find_dependency
   # calls don't overwrite its value.
-  find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS @VTK_COMPONENTS@ NO_DEFAULT_PATH)
+  find_dependency(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS @VTK_COMPONENTS@ NO_DEFAULT_PATH)
 
   # message(STATUS "Found VTK")
   add_compile_definitions(VIENNALS_USE_VTK)
