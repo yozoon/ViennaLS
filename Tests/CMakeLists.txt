@@ -4,7 +4,8 @@ project(ViennaLSTests)
 
 include("${CMAKE_SOURCE_DIR}/cmake/prepare.cmake")
 
-find_package(ViennaLS CONFIG  PATHS ${ViennaLS_BINARY_DIR})
+# Point find_package to the binary directory instead of the install location
+find_package(ViennaLS CONFIG PATHS ${ViennaLS_BINARY_DIR})
 if(NOT ViennaLS_FOUND)
   message(FATAL_ERROR "\
 One of the dependencies hasn't been built yet and thus can't be used by the tests target.\n\

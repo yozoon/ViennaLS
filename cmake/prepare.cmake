@@ -23,5 +23,3 @@ macro(SUBDIRLIST result curdir)
   endforeach()
   set(${result} ${dirlist})
 endmacro()
-
-set(ViennaLS_DIR "${ViennaLS_BINARY_DIR}")

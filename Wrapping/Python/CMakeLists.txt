@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 # lowercase viennaLS is the python export
 project("ViennaLSPython" VERSION ${VIENNALS_VERSION})
@@ -7,7 +7,6 @@ message(STATUS "ViennaLS version: ${VIENNALS_VERSION}")
 
 # include viennals
 set(ViennaLS_DIR "${ViennaLS_BINARY_DIR}")
-set(ViennaLS_COMMON_TARGET ${PROJECT_NAME})
 
 set(VIENNALS_PYTHON_SOURCE "pyWrap.cpp")
 set(VIENNALS_PYTHON_MODULE_NAME "viennaLS")
@@ -21,8 +20,8 @@ if(VIENNALS_BUILD_PYTHON_3)
       3
       CACHE STRING "Python version")
 
-  # find_package(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR})
   find_package(ViennaLS REQUIRED PATHS ${ViennaLS_DIR} NO_DEFAULT_PATH)
+  list(PREPEND VIENNALS_INCLUDE_DIRS ${VIENNALS_BUILD_INCLUDE_DIRS})
   find_package(pybind11 REQUIRED PATHS ${pybind11_DIR})
 
   # make 3.6 python module define dimension for build
@@ -55,12 +54,12 @@ if(VIENNALS_BUILD_PYTHON_2 AND NOT VIENNALS_BUILD_PYTHON_3)
       2
       CACHE STRING "Python version")
 
-  # disable register warning, as Pyhton.h of Python 2 includes register variables
+  # disable register warning, as Python.h of Python 2 includes register variables
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register")
 
-  find_package(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR})
-  find_package(ViennaLS REQUIRED)
-  find_package(pybind11 PATHS ${pybind11_DIR})
+  find_package(ViennaLS REQUIRED PATHS ${ViennaLS_DIR} NO_DEFAULT_PATH)
+  list(PREPEND VIENNALS_INCLUDE_DIRS ${VIENNALS_BUILD_INCLUDE_DIRS})
+  find_package(pybind11 REQUIRED PATHS ${pybind11_DIR})
 
   # make 2.7 python module
   set(VIENNALS_PYTHON_MODULE_NAME_2D "${VIENNALS_PYTHON_MODULE_NAME}2d")

@@ -177,8 +177,9 @@ endif(VIENNALS_BUILD_TESTS)
 # ##################################################################################################
 # BUILD PYTHON MODULE
 # ##################################################################################################
-# if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3) message(STATUS "pybind11_DIR:
-# ${pybind11_DIR}") find_package(pybind11 CONFIG REQUIRED PATHS ${pybind11_DIR}) endif()
+# if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
+#   add_subdirectory(Wrapping)
+# endif()
 
 # ##################################################################################################
 # INSTALL
