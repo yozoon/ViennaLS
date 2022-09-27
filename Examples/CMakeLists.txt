@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(ViennaLSExamples)
 
-include("${CMAKE_SOURCE_DIR}/cmake/preamble.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/prepare.cmake")
 
 add_custom_target(buildExamples DEPENDS ${VIENNALS_DEPENDENCIES})
 
