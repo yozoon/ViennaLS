@@ -3,11 +3,10 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(ViennaLS_super VERSION 2.0.0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# c++17 for inline constexpr variables
+set(CMAKE_CXX_STANDARD "17")
 
 add_definitions(-DVIENNALS_VERSION=${PROJECT_VERSION})
-
-# c++17 for inlince constexpr variables
-set(CMAKE_CXX_STANDARD "17")
 
 # set default build type
 set(DEFAULT_BUILD_TYPE "Release")
@@ -28,10 +27,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       CACHE BOOL "Export all symbols" FORCE)
 endif()
 
-option(VIENNALS_STATIC_BUILD "Link dependencies statically." OFF)
-option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
-option(VIENNALS_BUILD_TESTS "Build tests." OFF)
-option(VIENNALS_BUILD_EXAMPLES "Build examples." OFF)
+list(APPEND VIENNALS_DEPENDENCIES "viennahrle_external")
 
 # whether to use VTK or not
 option(VIENNALS_USE_VTK "Build with VTK file support." ON)
@@ -54,34 +50,167 @@ set_property(DIRECTORY PROPERTY EP_BASE ${DEPENDENCIES_DIR})
 include(ExternalProject)
 add_subdirectory(external/upstream)
 
-list(APPEND VIENNALS_DEPENDENCIES "viennahrle_external")
+# Save the dependencies in the cache
+set(VIENNALS_DEPENDENCIES
+    ${VIENNALS_DEPENDENCIES}
+    CACHE INTERNAL "List of dependencies that need to be built before ViennaLS can be used" FORCE)
 
-include(ExternalProject)
+include(GNUInstallDirs)
 
-ExternalProject_Add(
-  ViennaLS
-  DEPENDS ${VIENNALS_DEPENDENCIES}
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-             -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-             -DCMAKE_CXX_EXTENSIONS=${CMAKE_CXX_EXTENSIONS}
-             -DCMAKE_CXX_STANDARD_REQUIRED=${CMAKE_CXX_STANDARD_REQUIRED}
-             -DCMAKE_PROJECT_VERSION=${PROJECT_VERSION}
-             # Paths to dependencies
-             -DViennaHRLE_DIR=${ViennaHRLE_DIR}
-             -DVTK_DIR=${VTK_DIR}
-             -Dpybind11_DIR=${pybind11_DIR}
-             # Configuration Options
-             -DVIENNALS_USE_VTK=${VIENNALS_USE_VTK}
-             -DVIENNALS_BUILD_EXAMPLES=${VIENNALS_BUILD_EXAMPLES}
-             -DVIENNALS_BUILD_TESTS=${VIENNALS_BUILD_TESTS}
-             -DVIENNALS_BUILD_SHARED_LIBS=${VIENNALS_BUILD_SHARED_LIBS}
-             -DVIENNALS_BUILD_PYTHON_2=${VIENNALS_BUILD_PYTHON_2}
-             -DVIENNALS_BUILD_PYTHON_3=${VIENNALS_BUILD_PYTHON_3}
-             -DVIENNALS_STATIC_BUILD=${VIENNALS_STATIC_BUILD}
-  CMAKE_CACHE_ARGS -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
-                   -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-  BUILD_ALWAYS 1
-  INSTALL_COMMAND "")
+message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
+message(STATUS "VTK_DIR: ${VTK_DIR}")
+
+set(ViennaLS_BINARY_DIR
+    ${PROJECT_BINARY_DIR}
+    CACHE PATH "Path to local ViennaLS installation" FORCE)
+
+find_package(OpenMP REQUIRED)
+list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
+
+find_package(ViennaHRLE CONFIG REQUIRED PATHS ${ViennaHRLE_DIR})
+
+message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
+message(STATUS "VTK_DIR: ${VTK_DIR}")
+
+if(VIENNALS_USE_VTK)
+  add_compile_definitions(VIENNALS_USE_VTK)
+
+  # use VTK_USE_FILE for older versions of VTK
+  if(VTK_VERSION VERSION_LESS "9.0")
+    message(STATUS "Using old VTK Version: ${VTK_VERSION}")
+    set(VTK_COMPONENTS
+        "vtkCommonCore vtkIOCore vtkIOXML vtkIOXMLParser vtkFiltersCore vtkFiltersGeneral vtkFiltersGeometry"
+    )
+    # find_package is only required for populating the VTK_USE_FILE variable. This case requires
+    # that an external VTK installation is used, since our externalproject build already provides a
+    # newer version of VTK.
+    find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS ${VTK_COMPONENTS})
+    set(VTK_LIBRARIES
+        vtksys;vtkIOCore;vtkexpat;vtklz4;vtkzlib;vtklzma;vtkdoubleconversion;vtkCommonMisc;vtkCommonSystem;vtkIOXML;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;vtkCommonExecutionModel;vtkCommonDataModel;vtkCommonColor;vtkIOXMLParser;vtkIOCore;vtkCommonMisc;vtkCommonComputationalGeometry;vtkCommonTransforms;vtkCommonMath;
+    )
+    include(${VTK_USE_FILE})
+  else()
+    # Use the new component names instead of the old vtk* ones
+    set(VTK_COMPONENTS
+        "CommonCore IOCore IOXML IOXMLParser FiltersCore FiltersGeneral FiltersGeometry")
+    # For newer versions of VTK, only the target syntax is supported. This also automatically adds
+    # the vtk include directories.
+    set(VTK_LIBRARIES
+        VTK::CommonCore;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;
+    )
+  endif()
+
+  # only link needed vtk libraries for static builds
+  if(VIENNALS_STATIC_BUILD)
+    message(STATUS "Static build: Linking static VTK libraries")
+  endif(VIENNALS_STATIC_BUILD)
+
+  list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
+  list(APPEND VIENNALS_PYTHON_LIBRARIES ${VTK_LIBRARIES})
+endif(VIENNALS_USE_VTK)
+
+# ##################################################################################################
+# BUILD SHARED LIBRARIES
+# ##################################################################################################
+option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
+if(VIENNALS_BUILD_SHARED_LIBS)
+  list(APPEND VIENNALS_LIBRARIES ViennaHRLE)
+  # find_package(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR})
+
+  # add all specialisation source files
+  file(GLOB SPECIALISATION_CPPS "lib/*.cpp")
+
+  # build static or shared object for library
+  if(VIENNALS_STATIC_BUILD)
+    add_library(${PROJECT_NAME} STATIC ${SPECIALISATION_CPPS})
+  else(VIENNALS_STATIC_BUILD)
+    add_library(${PROJECT_NAME} SHARED ${SPECIALISATION_CPPS})
+  endif(VIENNALS_STATIC_BUILD)
+
+  target_link_libraries(${PROJECT_NAME} ${VIENNALS_LIBRARIES})
+  target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/"
+                                                     ${VIENNAHRLE_INCLUDE_DIRS})
+  set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
+else(VIENNALS_BUILD_SHARED_LIBS)
+  add_library(${PROJECT_NAME} INTERFACE)
+endif(VIENNALS_BUILD_SHARED_LIBS)
+
+# set the correct paths for installation
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/")
+endif()
+set(LOCAL_CONFIG_DIR "lib/cmake/${PROJECT_NAME}")
+
+# This variable is used if ViennaLS_COMMON_TARGET is set to true. And should only be invoked for the
+# example and test target, since those are compiled before the project is installed in its proper
+# install location.
+set(VIENNALS_BUILD_INCLUDE_DIRS "${${PROJECT_NAME}_SOURCE_DIR}/include")
+
+# Adding the install interface generator expression makes sure that the include files are installed
+# to the proper location (provided by GNUInstallDirs)
+target_include_directories(
+  ${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${VIENNALS_BUILD_INCLUDE_DIRS}>
+                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${PROJECT_NAME}ConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+
+configure_package_config_file(
+  "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" INSTALL_DESTINATION ${LOCAL_CONFIG_DIR})
+
+message(STATUS ${VIENNALS_BUILD_INCLUDE_DIRS})
+
+# ##################################################################################################
+# BUILD EXAMPLES
+# ##################################################################################################
+option(VIENNALS_BUILD_EXAMPLES "Build examples." OFF)
+if(VIENNALS_BUILD_EXAMPLES)
+  add_subdirectory(Examples)
+endif(VIENNALS_BUILD_EXAMPLES)
+
+# ##################################################################################################
+# BUILD TESTS (Smaller examples for testing)
+# ##################################################################################################
+option(VIENNALS_BUILD_TESTS "Build tests." OFF)
+if(VIENNALS_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(Tests)
+endif(VIENNALS_BUILD_TESTS)
+
+# ##################################################################################################
+# BUILD PYTHON MODULE
+# ##################################################################################################
+if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
+  message(STATUS "pybind11_DIR: ${pybind11_DIR}")
+  find_package(pybind11 CONFIG REQUIRED PATHS ${pybind11_DIR})
+endif()
+
+# ##################################################################################################
+# INSTALL
+# ##################################################################################################
+# install config files locations are provided by GNUInstallDirs
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}_Targets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(
+  EXPORT ${PROJECT_NAME}_Targets
+  FILE ${PROJECT_NAME}Targets.cmake
+  DESTINATION ${LOCAL_CONFIG_DIR})
+
+install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+              "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${LOCAL_CONFIG_DIR})
+
+# install include files
+file(GLOB_RECURSE HEADER_FILES "${PROJECT_SOURCE_DIR}/include/*.hpp")
+install(FILES ${HEADER_FILES} DESTINATION include)

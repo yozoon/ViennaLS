@@ -28,7 +28,7 @@ macro(SUBDIRLIST result curdir)
   set(${result} ${dirlist})
 endmacro()
 
-add_custom_target(buildTests)
+add_custom_target(buildTests DEPENDS ${VIENNALS_DEPENDENCIES})
 
 set(ViennaLS_DIR "${ViennaLS_BINARY_DIR}")
 set(ViennaLS_COMMON_TARGET TRUE)
