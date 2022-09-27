@@ -29,11 +29,15 @@ macro(SUBDIRLIST result curdir)
 endmacro()
 
 add_custom_target(buildExamples)
+set_target_properties(buildExamples PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 set(ViennaLS_DIR "${ViennaLS_BINARY_DIR}")
+
+# COMMON_TARGET selects the source directory as include path in the ViennaLSConfig file since the
+# project might not have been installed yet.
 set(ViennaLS_COMMON_TARGET TRUE)
 
-find_package(ViennaLS CONFIG REQUIRED PATHS ${ViennaLS_DIR})
+find_package(ViennaLS CONFIG REQUIRED PATHS ${ViennaLS_DIR} NO_DEFAULT_PATH)
 
 subdirlist(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
