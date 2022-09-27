@@ -43,6 +43,9 @@ else()
     # Get install and build directory
     ExternalProject_Get_Property(pybind11_external INSTALL_DIR BINARY_DIR)
     set(pybind11_DIR "${INSTALL_DIR}")
+    # add to buildDependencies target
+    add_dependencies(buildDependencies pybind11_external)
+
   endif()
   set(pybind11_DIR
       "${pybind11_DIR}"

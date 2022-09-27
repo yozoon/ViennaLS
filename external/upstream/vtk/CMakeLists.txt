@@ -101,6 +101,9 @@ else()
     # Since we don't explicitely install vtk (INSTALL_COMMAND is empty), we simply provide the build
     # directory as a path for looking up this installation.
     set(VTK_DIR "${BINARY_DIR}")
+
+    # add to buildDependencies target
+    add_dependencies(buildDependencies vtk_external)
   endif()
   # Write VTK_DIR and VTK_VERSION to the cache so that we can use it in the toplevel CMakeLists file
   set(VTK_DIR

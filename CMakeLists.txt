@@ -48,6 +48,7 @@ set_property(DIRECTORY PROPERTY EP_BASE ${DEPENDENCIES_DIR})
 
 # Include all external dependencies
 include(ExternalProject)
+add_custom_target(buildDependencies)
 add_subdirectory(external/upstream)
 
 # Save the dependencies in the cache

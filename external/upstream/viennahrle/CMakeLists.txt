@@ -31,6 +31,9 @@ else()
 
     set(ViennaHRLE_DIR "${INSTALL_DIR}")
 
+    # add to buildDependencies target
+    add_dependencies(buildDependencies viennahrle_external)
+
   endif()
   set(ViennaHRLE_DIR
       "${ViennaHRLE_DIR}"
