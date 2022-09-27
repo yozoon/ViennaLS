@@ -10,7 +10,9 @@ include(GNUInstallDirs)
 message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
 message(STATUS "VTK_DIR: ${VTK_DIR}")
 
-set(ViennaLS_BINARY_DIR ${PROJECT_BINARY_DIR} CACHE PATH "Path to local ViennaLS installation" FORCE)
+set(ViennaLS_BINARY_DIR
+    ${PROJECT_BINARY_DIR}
+    CACHE PATH "Path to local ViennaLS installation" FORCE)
 
 find_package(OpenMP REQUIRED)
 list(APPEND VIENNALS_LIBRARIES OpenMP::OpenMP_CXX)
@@ -23,9 +25,13 @@ message(STATUS "VTK_DIR: ${VTK_DIR}")
 if(VIENNALS_USE_VTK)
   find_package(
     VTK CONFIG REQUIRED PATHS ${VTK_DIR}
-    # COMPONENTS VTK::CommonCore VTK::IOCore VTK::IOXML VTK::IOXMLParser VTK::FiltersCore
-    # VTK::FiltersGeneral VTK::FiltersGeometry
-  )
+    COMPONENTS vtkCommonCore
+               vtkIOCore
+               vtkIOXML
+               vtkIOXMLParser
+               vtkFiltersCore
+               vtkFiltersGeneral
+               vtkFiltersGeometry)
 
   add_compile_definitions(VIENNALS_USE_VTK)
 
