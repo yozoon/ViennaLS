@@ -6,6 +6,8 @@ include("${CMAKE_SOURCE_DIR}/cmake/prepare.cmake")
 
 add_custom_target(buildExamples DEPENDS ${VIENNALS_DEPENDENCIES})
 
+set_target_properties(buildExamples PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
 subdirlist(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
 # add all examples

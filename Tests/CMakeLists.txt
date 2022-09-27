@@ -6,6 +6,8 @@ include("${CMAKE_SOURCE_DIR}/cmake/prepare.cmake")
 
 add_custom_target(buildTests DEPENDS ${VIENNALS_DEPENDENCIES})
 
+set_target_properties(buildTests PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
 subdirlist(TEST_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
 # add all tests
