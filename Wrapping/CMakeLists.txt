@@ -1,14 +1,16 @@
 # target for python module build
 
-# Can this be handled similarly to tests and examples, i.e. first configure project without the
-# python target, build the dependencies and then re-run the configuration to enable the target?
+# Get the number of cores
+include(ProcessorCount)
+ProcessorCount(NPROC)
+
+set(vls_python_external pythonBindings)
 ExternalProject_Add(
-  viennaLSPython
+  ${vls_python_external}
   DEPENDS ${VIENNALS_DEPENDENCIES}
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/Python
-  INSTALL_DIR ${CMAKE_BINARY_DIR}
-  # LIST_SEPARATOR ;
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+  BINARY_DIR ${CMAKE_BINARY_DIR}
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
              -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
              -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
@@ -31,6 +33,17 @@ ExternalProject_Add(
   CMAKE_CACHE_ARGS
     -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS} -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     -DCMAKE_INCLUDE_PATH:PATH=${CMAKE_INCLUDE_PATH} -DCMAKE_LIBRARY_PATH:PATH=${CMAKE_LIBRARY_PATH}
-  BUILD_ALWAYS 1
-  # INSTALL_COMMAND ""
-)
+  BUILD_ALWAYS 1)
+
+ExternalProject_Add_StepTargets(
+  ${vls_python_external}
+  build
+  DEPENDEES
+  configure
+  BUILD_COMMAND
+  "${CMAKE_COMMAND} --build . --parallel ${NPROC}"
+  EXCLUDE_FROM_MAIN
+  TRUE)
+
+ExternalProject_Add_StepTargets(${vls_python_external} install DEPENDEES build EXCLUDE_FROM_MAIN
+                                TRUE)
