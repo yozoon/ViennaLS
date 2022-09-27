@@ -13,7 +13,7 @@ Try the following steps to fix the problem:\n\
    (e.g. with the `-D VIENNALS_BUILD_EXAMPLES=OFF` flag)\n\
 2. Build the dependencies target: e.g. `make buildDependencies` when using Makefiles\n\
 3. Turn on examples target again by re-enabling the VIENNALS_BUILD_EXAMPLES option\n\
-(e.g. with the `-D VIENNALS_BUILD_EXAMPLES=ON` flag)\n\
+   (e.g. with the `-D VIENNALS_BUILD_EXAMPLES=ON` flag)\n\
 4. Now the configure step should pick up the built dependencies and proceed as intended.")
 endif()
 
