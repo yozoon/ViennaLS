@@ -25,9 +25,7 @@ macro(SUBDIRLIST result curdir)
 endmacro()
 
 set(ViennaLS_DIR "${ViennaLS_BINARY_DIR}")
-set(ViennaLS_COMMON_TARGET TRUE)
 
 find_package(ViennaLS CONFIG REQUIRED PATHS ${ViennaLS_DIR})
 
-message(STATUS "Include dirs: ${VIENNALS_INCLUDE_DIRS}")
-message(STATUS "Libraries: ${VIENNALS_LIBRARIES}")
+list(PREPEND VIENNALS_INCLUDE_DIRS ${VIENNALS_BUILD_INCLUDE_DIRS})
