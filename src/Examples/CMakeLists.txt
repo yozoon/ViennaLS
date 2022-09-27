@@ -31,8 +31,9 @@ endmacro()
 add_custom_target(buildExamples)
 
 set(ViennaLS_DIR "${ViennaLS_BINARY_DIR}")
-find_package(ViennaLS CONFIG REQUIRED PATHS ${ViennaLS_DIR})
 set(ViennaLS_COMMON_TARGET TRUE)
+
+find_package(ViennaLS CONFIG REQUIRED PATHS ${ViennaLS_DIR})
 
 subdirlist(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
