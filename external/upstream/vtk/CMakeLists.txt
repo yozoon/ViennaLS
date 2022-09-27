@@ -99,6 +99,9 @@ else()
     # Since we don't explicitely install vtk (INSTALL_COMMAND is empty), we simply provide the build
     # directory as a path for looking up this installation.
     set(VTK_DIR "${BINARY_DIR}")
+
+    # Write the VTK_VERSION to cache so that we can use it in the toplevel CMakeLists file
+    set(VTK_VERSION 9.1.0 CACHE STRING "The VTK version" FORCE)
   endif()
   set(VTK_DIR
       ${VTK_DIR}
