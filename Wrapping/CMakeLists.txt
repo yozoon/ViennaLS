@@ -1,15 +1,14 @@
-# target for python module build
-
 # Get the number of cores
 include(ProcessorCount)
 ProcessorCount(NPROC)
 
-set(vls_python_external pythonBindings)
+# target for python module build
 ExternalProject_Add(
-  ${vls_python_external}
+  pythonBindings
   DEPENDS ${VIENNALS_DEPENDENCIES}
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/Python
-  BINARY_DIR ${CMAKE_BINARY_DIR}
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
              -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -30,20 +29,11 @@ ExternalProject_Add(
              -DVIENNALS_VERSION=${PROJECT_VERSION}
              -DVIENNALS_BUILD_PYTHON_3=${VIENNALS_BUILD_PYTHON_3}
              -DVIENNALS_BUILD_PYTHON_2=${VIENNALS_BUILD_PYTHON_2}
+             -DVIENNALS_BUILD_INCLUDE_DIRS=${VIENNALS_BUILD_INCLUDE_DIRS}
   CMAKE_CACHE_ARGS
     -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS} -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
     -DCMAKE_INCLUDE_PATH:PATH=${CMAKE_INCLUDE_PATH} -DCMAKE_LIBRARY_PATH:PATH=${CMAKE_LIBRARY_PATH}
-  BUILD_ALWAYS 1)
-
-ExternalProject_Add_StepTargets(
-  ${vls_python_external}
-  build
-  DEPENDEES
-  configure
-  BUILD_COMMAND
-  "${CMAKE_COMMAND} --build . --parallel ${NPROC}"
-  EXCLUDE_FROM_MAIN
-  TRUE)
-
-ExternalProject_Add_StepTargets(${vls_python_external} install DEPENDEES build EXCLUDE_FROM_MAIN
-                                TRUE)
+  BUILD_COMMAND ${CMAKE_COMMAND} --build . --parallel ${NPROC}
+  TEST_COMMAND ""
+  STEP_TARGETS build install
+  EXCLUDE_FROM_ALL TRUE)

@@ -5,7 +5,7 @@ if(DEFINED ${pybind11_DIR})
 else()
   find_package(pybind11 QUIET)
   if(pybind11_FOUND)
-    message(STATUS "Found pybind11 at ${pybind11_FOUND}.")
+    message(STATUS "Found pybind11 at ${pybind11_DIR}.")
     add_library(pybind11_external INTERFACE) # dummy target
   else()
     message(
