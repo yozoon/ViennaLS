@@ -9,7 +9,7 @@ find_package(ViennaLS CONFIG PATHS ${ViennaLS_BINARY_DIR})
 if(NOT ViennaLS_FOUND)
   message(
     FATAL_ERROR
-      "One of the dependencies hasn't been built yet and thus can't be used by the tests target.\n\
+      "One of the dependencies hasn't been built yet and thus can't be used by the buildTests target.\n\
 Try the following steps to fix the problem:\n\
 1. Turn off tests by disabling the VIENNALS_BUILD_TESTS option when configuring the project\n\
    (e.g. with the `-D VIENNALS_BUILD_TESTS=OFF` flag)\n\
@@ -21,7 +21,7 @@ endif()
 
 list(PREPEND VIENNALS_INCLUDE_DIRS ${VIENNALS_BUILD_INCLUDE_DIRS})
 
-# Exclude the buildExamples target from the `all` target
+# Exclude the buildTests target from the `all` target
 set_property(DIRECTORY PROPERTY EXCLUDE_FROM_ALL TRUE)
 
 add_custom_target(buildTests DEPENDS ${VIENNALS_DEPENDENCIES})

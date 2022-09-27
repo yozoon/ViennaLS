@@ -4,7 +4,7 @@
 # python target, build the dependencies and then re-run the configuration to enable the target?
 ExternalProject_Add(
   viennaLSPython
-  # DEPENDS
+  DEPENDS ${VIENNALS_DEPENDENCIES}
   SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/Python
   INSTALL_DIR ${CMAKE_BINARY_DIR}
   # LIST_SEPARATOR ;
@@ -19,12 +19,12 @@ ExternalProject_Add(
              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
              -DCMAKE_CXX_FLAGS_DEBUG=${CMAKE_CXX_FLAGS_DEBUG}
              -DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE}
-             # -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-             #
+             # Paths
              -DViennaLS_BINARY_DIR=${ViennaLS_BINARY_DIR}
              -DViennaHRLE_DIR=${ViennaHRLE_DIR}
              -DVTK_DIR=${VTK_DIR}
              -Dpybind11_DIR=${pybind11_DIR}
+             # Variables and Options
              -DVIENNALS_VERSION=${PROJECT_VERSION}
              -DVIENNALS_BUILD_PYTHON_3=${VIENNALS_BUILD_PYTHON_3}
              -DVIENNALS_BUILD_PYTHON_2=${VIENNALS_BUILD_PYTHON_2}
