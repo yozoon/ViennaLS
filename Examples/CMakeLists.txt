@@ -21,9 +21,10 @@ endif()
 
 list(PREPEND VIENNALS_INCLUDE_DIRS ${VIENNALS_BUILD_INCLUDE_DIRS})
 
-add_custom_target(buildExamples DEPENDS ${VIENNALS_DEPENDENCIES})
+# Exclude the buildExamples target from the `all` target
+set_property(DIRECTORY PROPERTY EXCLUDE_FROM_ALL TRUE)
 
-set_target_properties(buildExamples PROPERTIES EXCLUDE_FROM_ALL TRUE)
+add_custom_target(buildExamples DEPENDS ${VIENNALS_DEPENDENCIES})
 
 subdirlist(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
