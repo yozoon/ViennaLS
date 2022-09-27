@@ -31,7 +31,8 @@ endmacro()
 add_custom_target(buildTests)
 
 set(ViennaLS_DIR "${ViennaLS_BINARY_DIR}")
-# set(ViennaLS_COMMON_TARGET ${PROJECT_NAME})
+find_package(ViennaLS CONFIG REQUIRED PATHS ${ViennaLS_DIR})
+set(ViennaLS_COMMON_TARGET TRUE)
 
 subdirlist(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
