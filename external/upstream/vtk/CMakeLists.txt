@@ -3,12 +3,14 @@
 # ##################################################################################################
 if(DEFINED ${VTK_DIR})
   find_package(
-    VTK
-    REQUIRED
-    # COMPONENTS VTK::CommonCore VTK::IOCore VTK::IOXML VTK::IOXMLParser VTK::FiltersCore
-    # VTK::FiltersGeneral VTK::FiltersGeometry
-    PATHS
-    ${VTK_DIR})
+    VTK CONFIG REQUIRED PATHS ${VTK_DIR}
+    COMPONENTS vtkCommonCore
+               vtkIOCore
+               vtkIOXML
+               vtkIOXMLParser
+               vtkFiltersCore
+               vtkFiltersGeneral
+               vtkFiltersGeometry)
   message(STATUS "VTK_DIR: ${VTK_DIR}")
   add_library(vtk_external INTERFACE) # dummy target
 else()
