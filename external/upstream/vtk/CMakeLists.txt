@@ -41,6 +41,8 @@ else()
     include(ProcessorCount)
     ProcessorCount(NPROC)
 
+    set(VTK_VERSION 9.1)
+
     ExternalProject_Add(
       vtk_external
       GIT_REPOSITORY https://gitlab.kitware.com/vtk/vtk.git
@@ -99,11 +101,12 @@ else()
     # Since we don't explicitely install vtk (INSTALL_COMMAND is empty), we simply provide the build
     # directory as a path for looking up this installation.
     set(VTK_DIR "${BINARY_DIR}")
-
-    # Write the VTK_VERSION to cache so that we can use it in the toplevel CMakeLists file
-    set(VTK_VERSION 9.1.0 CACHE STRING "The VTK version" FORCE)
   endif()
+  # Write VTK_DIR and VTK_VERSION to the cache so that we can use it in the toplevel CMakeLists file
   set(VTK_DIR
       ${VTK_DIR}
       CACHE PATH "Path to VTK installation" FORCE)
+  set(VTK_VERSION
+      ${VTK_VERSION}
+      CACHE STRING "The VTK version" FORCE)
 endif()
