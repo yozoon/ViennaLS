@@ -4,7 +4,9 @@ project(ViennaLSExamples)
 
 include("${CMAKE_SOURCE_DIR}/cmake/preamble.cmake")
 
-subdirlist(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
+add_custom_target(buildExamples DEPENDS ${VIENNALS_DEPENDENCIES})
+
+SUBDIRLIST(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
 # add all examples
 foreach(subdir ${EXAMPLE_DIRS})

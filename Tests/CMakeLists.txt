@@ -6,9 +6,9 @@ include("${CMAKE_SOURCE_DIR}/cmake/preamble.cmake")
 
 add_custom_target(buildTests DEPENDS ${VIENNALS_DEPENDENCIES})
 
-subdirlist(EXAMPLE_DIRS ${CMAKE_CURRENT_LIST_DIR})
+SUBDIRLIST(TEST_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
-# add all examples
-foreach(subdir ${EXAMPLE_DIRS})
+# add all tests
+foreach(subdir ${TEST_DIRS})
   add_subdirectory(${subdir})
 endforeach()
