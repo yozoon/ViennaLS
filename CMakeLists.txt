@@ -104,6 +104,10 @@ set(LOCAL_CONFIG_DIR "lib/cmake/${PROJECT_NAME}")
 # compiled before the project is installed in its proper install location.
 set(VIENNALS_BUILD_INCLUDE_DIRS "${${PROJECT_NAME}_SOURCE_DIR}/include")
 
+# We always create the INTERFACE target, so that properties are properly set and targets can be
+# exported
+add_library(${PROJECT_NAME} INTERFACE)
+
 # Adding the install interface generator expression makes sure that the include files are installed
 # to the proper location (provided by GNUInstallDirs)
 target_include_directories(
@@ -154,8 +158,6 @@ option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter co
 if(VIENNALS_BUILD_SHARED_LIBS)
   add_subdirectory(lib)
 endif()
-
-add_library(${PROJECT_NAME} INTERFACE)
 
 # ##################################################################################################
 # INSTALL
