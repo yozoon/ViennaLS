@@ -92,9 +92,6 @@ if(VIENNALS_USE_VTK)
         VTK::CommonCore;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;
     )
   endif()
-
-  list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
-  list(APPEND VIENNALS_PYTHON_LIBRARIES ${VTK_LIBRARIES})
 endif(VIENNALS_USE_VTK)
 
 # set the correct paths for installation
@@ -103,9 +100,8 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 set(LOCAL_CONFIG_DIR "lib/cmake/${PROJECT_NAME}")
 
-# This variable is used if ViennaLS_COMMON_TARGET is set to true. And should only be invoked for the
-# example and test target, since those are compiled before the project is installed in its proper
-# install location.
+# This variable is only used by the example, test and precompiled library target, since those are
+# compiled before the project is installed in its proper install location.
 set(VIENNALS_BUILD_INCLUDE_DIRS "${${PROJECT_NAME}_SOURCE_DIR}/include")
 
 # Adding the install interface generator expression makes sure that the include files are installed
@@ -157,9 +153,9 @@ endif()
 option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
 if(VIENNALS_BUILD_SHARED_LIBS)
   add_subdirectory(lib)
-else(VIENNALS_BUILD_SHARED_LIBS)
-  add_library(${PROJECT_NAME} INTERFACE)
-endif(VIENNALS_BUILD_SHARED_LIBS)
+endif()
+
+add_library(${PROJECT_NAME} INTERFACE)
 
 # ##################################################################################################
 # INSTALL
