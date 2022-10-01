@@ -18,7 +18,7 @@ Try the following steps to fix the problem:\n\
 endif()
 
 list(PREPEND VIENNALS_INCLUDE_DIRS ${VIENNALS_BUILD_INCLUDE_DIRS})
-list(APPEND VIENNALS_LIBRARIES ViennaHRLE)
+# list(APPEND VIENNALS_LIBRARIES ViennaHRLE)
 
 # add all specialisation source files
 file(GLOB SPECIALISATION_CPPS "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
