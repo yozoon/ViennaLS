@@ -36,6 +36,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${VIENNALS_INCLUDE_DIRS})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${VIENNALS_VERSION})
 
+# Now also update the OUTPUT_NAME so that the library isn't called ViennaLSPrecompiled but ViennaLS
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ViennaLS)
+
 # Building the shared libraries requires that all dependencies are built
 add_dependencies(${PROJECT_NAME} ${VIENNALS_DEPENDENCIES})
 
