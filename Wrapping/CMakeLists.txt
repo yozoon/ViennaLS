@@ -22,8 +22,6 @@ ExternalProject_Add(
              -DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE}
              # Paths
              -DViennaLS_BINARY_DIR=${ViennaLS_BINARY_DIR}
-             -DViennaHRLE_DIR=${ViennaHRLE_DIR}
-             -DVTK_DIR=${VTK_DIR}
              -Dpybind11_DIR=${pybind11_DIR}
              # Variables and Options
              -DVIENNALS_VERSION=${PROJECT_VERSION}

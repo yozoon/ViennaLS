@@ -93,40 +93,9 @@ if(VIENNALS_USE_VTK)
     )
   endif()
 
-  # only link needed vtk libraries for static builds
-  if(VIENNALS_STATIC_BUILD)
-    message(STATUS "Static build: Linking static VTK libraries")
-  endif(VIENNALS_STATIC_BUILD)
-
   list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
   list(APPEND VIENNALS_PYTHON_LIBRARIES ${VTK_LIBRARIES})
 endif(VIENNALS_USE_VTK)
-
-# ##################################################################################################
-# BUILD SHARED LIBRARIES
-# ##################################################################################################
-option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
-if(VIENNALS_BUILD_SHARED_LIBS)
-  list(APPEND VIENNALS_LIBRARIES ViennaHRLE)
-  # find_package(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR})
-
-  # add all specialisation source files
-  file(GLOB SPECIALISATION_CPPS "lib/*.cpp")
-
-  # build static or shared object for library
-  if(VIENNALS_STATIC_BUILD)
-    add_library(${PROJECT_NAME} STATIC ${SPECIALISATION_CPPS})
-  else(VIENNALS_STATIC_BUILD)
-    add_library(${PROJECT_NAME} SHARED ${SPECIALISATION_CPPS})
-  endif(VIENNALS_STATIC_BUILD)
-
-  target_link_libraries(${PROJECT_NAME} ${VIENNALS_LIBRARIES})
-  target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/"
-                                                     ${VIENNAHRLE_INCLUDE_DIRS})
-  set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
-else(VIENNALS_BUILD_SHARED_LIBS)
-  add_library(${PROJECT_NAME} INTERFACE)
-endif(VIENNALS_BUILD_SHARED_LIBS)
 
 # set the correct paths for installation
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -181,6 +150,16 @@ endif(VIENNALS_BUILD_TESTS)
 if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
   add_subdirectory(Wrapping)
 endif()
+
+# ##################################################################################################
+# BUILD SHARED LIBRARIES
+# ##################################################################################################
+option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
+if(VIENNALS_BUILD_SHARED_LIBS)
+  add_subdirectory(lib)
+else(VIENNALS_BUILD_SHARED_LIBS)
+  add_library(${PROJECT_NAME} INTERFACE)
+endif(VIENNALS_BUILD_SHARED_LIBS)
 
 # ##################################################################################################
 # INSTALL
