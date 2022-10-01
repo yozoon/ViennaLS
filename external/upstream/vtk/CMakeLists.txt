@@ -11,14 +11,18 @@ if(DEFINED ${VTK_DIR})
                vtkFiltersCore
                vtkFiltersGeneral
                vtkFiltersGeometry)
-  message(STATUS "VTK_DIR: ${VTK_DIR}")
+  message(STATUS "Found VTK at ${VTK_DIR}.")
   add_library(vtk_external INTERFACE) # dummy target
 else()
   find_package(
     VTK QUIET
-    # COMPONENTS VTK::CommonCore VTK::IOCore VTK::IOXML VTK::IOXMLParser VTK::FiltersCore
-    # VTK::FiltersGeneral VTK::FiltersGeometry
-  )
+    COMPONENTS vtkCommonCore
+               vtkIOCore
+               vtkIOXML
+               vtkIOXMLParser
+               vtkFiltersCore
+               vtkFiltersGeneral
+               vtkFiltersGeometry)
   if(VTK_FOUND)
     message(STATUS "Found VTK at ${VTK_DIR}.")
     add_library(vtk_external INTERFACE) # dummy target

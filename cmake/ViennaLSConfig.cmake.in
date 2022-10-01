@@ -15,7 +15,7 @@ endif()
 
 # compiler dependent settings
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  # disable-new-dtags sets RPATH which searches for libs recursively, instead of RUNPATH which does
+  # disable-new-dtags sets RPATH which searches for libs recursively, instead of RUNPATH which is
   # not needed for g++ to link correctly
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -69,7 +69,7 @@ if(@VIENNALS_BUILD_SHARED_LIBS@)
 endif()
 
 if(VIENNALS_USE_SHARED_LIBS)
-  link_directories(@CMAKE_INSTALL_PREFIX@lib)
+  link_directories(@CMAKE_INSTALL_PREFIX@/lib)
   list(APPEND VIENNALS_LIBRARIES @PROJECT_NAME@)
 endif()
 

@@ -21,12 +21,7 @@ endif()
 
 list(PREPEND VIENNALS_INCLUDE_DIRS ${VIENNALS_BUILD_INCLUDE_DIRS})
 
-# Exclude the buildTests target from the `all` target
-set_property(DIRECTORY PROPERTY EXCLUDE_FROM_ALL TRUE)
-
 add_custom_target(buildTests DEPENDS ${VIENNALS_DEPENDENCIES})
-
-set_target_properties(buildTests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 subdirlist(TEST_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
