@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(ViennaLS VERSION 2.0.0)
 
+set(VIENNALS_VERSION
+    ${PROJECT_VERSION}
+    CACHE STRING "The version of ViennaLS" FORCE)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # c++17 for inline constexpr variables
 set(CMAKE_CXX_STANDARD "17")
