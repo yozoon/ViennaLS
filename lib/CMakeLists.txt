@@ -41,4 +41,12 @@ add_dependencies(${PROJECT_NAME} ${VIENNALS_DEPENDENCIES})
 
 include(GNUInstallDirs)
 
+# Adding the install interface generator expression makes sure that the include files are installed
+# to the proper location (provided by GNUInstallDirs)
+target_include_directories(
+  ${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${VIENNALS_BUILD_INCLUDE_DIRS}>
+                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
+
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
