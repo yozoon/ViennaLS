@@ -1,6 +1,13 @@
 # ##################################################################################################
 # Check VTK Dependency
 # ##################################################################################################
+# List of VTK 9+ library targets
+list(
+  APPEND
+  VTK_LIBRARY_TARGETS
+  "VTK::CommonCore;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry"
+)
+
 if(DEFINED ${VTK_DIR})
   find_package(
     VTK CONFIG REQUIRED PATHS ${VTK_DIR}
@@ -11,6 +18,15 @@ if(DEFINED ${VTK_DIR})
                vtkFiltersCore
                vtkFiltersGeneral
                vtkFiltersGeometry)
+  if(VIENNALS_STATIC_BUILD)
+    check_all_static(ALL_STATIC ${VTK_LIBRARY_TARGETS})
+    if(NOT ${ALL_STATIC})
+      message(
+        FATAL_ERROR
+          "Not all of the targets which were exported by the provided VTK installation were built to be statically linked."
+      )
+    endif()
+  endif()
   message(STATUS "Found VTK at ${VTK_DIR}.")
   add_library(vtk_external INTERFACE) # dummy target
 else()
@@ -23,6 +39,16 @@ else()
                vtkFiltersCore
                vtkFiltersGeneral
                vtkFiltersGeometry)
+  if(VIENNALS_STATIC_BUILD)
+    check_all_static(ALL_STATIC ${VTK_LIBRARY_TARGETS})
+    if(NOT ${ALL_STATIC})
+      set(VTK_FOUND FALSE)
+      message(
+        STATUS
+          "The found installation of VTK was not built to be statically linked. Static VTK libraries will be built from source."
+      )
+    endif()
+  endif()
   if(VTK_FOUND)
     message(STATUS "Found VTK at ${VTK_DIR}.")
     add_library(vtk_external INTERFACE) # dummy target
