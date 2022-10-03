@@ -19,7 +19,7 @@ if(DEFINED ${VTK_DIR})
                vtkFiltersGeneral
                vtkFiltersGeometry)
   if(VIENNALS_STATIC_BUILD)
-    check_all_static(ALL_STATIC ${VTK_LIBRARY_TARGETS})
+    CHECK_ALL_STATIC(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
     if(NOT ${ALL_STATIC})
       message(
         FATAL_ERROR
@@ -40,7 +40,7 @@ else()
                vtkFiltersGeneral
                vtkFiltersGeometry)
   if(VIENNALS_STATIC_BUILD)
-    check_all_static(ALL_STATIC ${VTK_LIBRARY_TARGETS})
+    CHECK_ALL_STATIC(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
     if(NOT ${ALL_STATIC})
       set(VTK_FOUND FALSE)
       message(
@@ -118,8 +118,7 @@ else()
                  -DVTK_MODULE_ENABLE_VTK_FiltersGeneral:BOOL=YES
                  -DVTK_MODULE_ENABLE_VTK_FiltersGeometry:BOOL=YES
       BUILD_COMMAND ${CMAKE_COMMAND} --build . --parallel ${NPROC}
-      # No install needed
-      INSTALL_COMMAND ""
+      INSTALL_COMMAND ${CMAKE_COMMAND} --install .
       UPDATE_COMMAND ""
       USES_TERMINAL_DOWNLOAD 1
       USES_TERMINAL_UPDATE 1
@@ -128,9 +127,10 @@ else()
     # Get install and build directory
     ExternalProject_Get_Property(vtk_external INSTALL_DIR BINARY_DIR)
 
-    # Since we don't explicitely install vtk (INSTALL_COMMAND is empty), we simply provide the build
-    # directory as a path for looking up this installation.
-    set(VTK_DIR "${BINARY_DIR}")
+    set(VTK_DIR "${INSTALL_DIR}")
+    set(VTK_INCLUDE_DIRS "${VTK_DIR}/include/vtk-9.1")
+
+    message(STATUS "${VTK_DIR}")
 
     # add to buildDependencies target
     add_dependencies(buildDependencies vtk_external)
@@ -139,7 +139,13 @@ else()
   set(VTK_DIR
       ${VTK_DIR}
       CACHE PATH "Path to VTK installation" FORCE)
+  message(STATUS "${VTK_DIR}")
+  
   set(VTK_VERSION
       ${VTK_VERSION}
       CACHE STRING "The VTK version" FORCE)
+  set(
+      VTK_INCLUDE_DIRS
+      ${VTK_INCLUDE_DIRS}
+      CACHE STRING "Path to VTK headers" FORCE)
 endif()

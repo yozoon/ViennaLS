@@ -96,6 +96,7 @@ if(VIENNALS_USE_VTK)
         VTK::CommonCore;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;
     )
   endif()
+  list(APPEND ${VIENNALS_LIBRARIES} ${VTK_LIBRARIES})
 endif(VIENNALS_USE_VTK)
 
 # set the correct paths for installation
@@ -108,9 +109,56 @@ set(LOCAL_CONFIG_DIR "lib/cmake/${PROJECT_NAME}")
 # compiled before the project is installed in its proper install location.
 set(VIENNALS_BUILD_INCLUDE_DIRS "${${PROJECT_NAME}_SOURCE_DIR}/include")
 
-# We always create the INTERFACE target, so that properties are properly set and targets can be
-# exported
-add_library(${PROJECT_NAME} INTERFACE)
+# ##################################################################################################
+# BUILD SHARED LIBRARIES
+# ##################################################################################################
+option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
+if(VIENNALS_BUILD_SHARED_LIBS)
+  set(DEPENDENCIES_FOUND TRUE)
+  find_package(ViennaHRLE QUIET PATHS ${ViennaHRLE_DIR})
+  if(NOT ViennaHRLE_FOUND)
+    set(DEPENDENCIES_FOUND FALSE)
+  endif()
+  message(STATUS "VHRLE ${DEPENDENCIES_FOUND}")
+  if(VIENNALS_USE_VTK)
+  message(STATUS "COMPONENTS ${VTK_COMPONENTS}")
+    message(STATUS ${VTK_DIR})
+    find_package(VTK QUIET PATHS ${VTK_DIR} NO_DEFAULT_PATH)# COMPONENTS "${VTK_COMPONENTS}")
+    if(NOT VTK_FOUND)
+      set(DEPENDENCIES_FOUND FALSE)
+    endif()
+    message(STATUS ${VTK_DIR})
+    message(STATUS "VTKF ${DEPENDENCIES_FOUND}")
+  endif()
+  message(STATUS "INCLUDE: ${VTK_INCLUDE_DIRS}")
+  if(NOT DEPENDENCIES_FOUND)
+      message(
+        FATAL_ERROR
+          "One of the dependencies hasn't been built yet and thus can't be used by the precompiled libraries target.\n\
+    Try the following steps to fix the problem:\n\
+    1. Turn off precompiled libraries target by disabling the VIENNALS_BUILD_SHARED_LIBS option when configuring the project\n\
+      (e.g. with the `-D VIENNALS_BUILD_SHARED_LIBS=OFF` flag)\n\
+    2. Build the dependencies target: e.g. `make buildDependencies` when using Makefiles\n\
+    3. Turn on precompiled libraries target again by re-enabling the VIENNALS_BUILD_SHARED_LIBS option\n\
+      (e.g. with the `-D VIENNALS_BUILD_SHARED_LIBS=ON` flag)\n\
+    4. Now the configure step should pick up the built dependencies and proceed as intended.")
+  endif()
+  # add all specialisation source files
+  file(GLOB SPECIALISATION_CPPS "lib/*.cpp")
+  if(VIENNALS_STATIC_BUILD)
+    add_library(${PROJECT_NAME} STATIC ${SPECIALISATION_CPPS})
+  else(VIENNALS_STATIC_BUILD)
+    add_library(${PROJECT_NAME} SHARED ${SPECIALISATION_CPPS})
+  endif(VIENNALS_STATIC_BUILD)
+  target_link_libraries(${PROJECT_NAME} ${VIENNALS_LIBRARIES})
+  target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${VIENNAHRLE_INCLUDE_DIRS})
+  if(VIENNALS_USE_VTK)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${VTK_INCLUDE_DIRS})
+  endif()
+  set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
+else()
+  add_library(${PROJECT_NAME} INTERFACE)
+endif()
 
 # Adding the install interface generator expression makes sure that the include files are installed
 # to the proper location (provided by GNUInstallDirs)
@@ -153,14 +201,6 @@ endif(VIENNALS_BUILD_TESTS)
 # TODO: Properly integrate the python externalproject with this cmake configuration
 if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
   add_subdirectory(Wrapping)
-endif()
-
-# ##################################################################################################
-# BUILD SHARED LIBRARIES
-# ##################################################################################################
-option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
-if(VIENNALS_BUILD_SHARED_LIBS)
-  add_subdirectory(lib)
 endif()
 
 # ##################################################################################################

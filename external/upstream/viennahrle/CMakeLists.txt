@@ -30,6 +30,7 @@ else()
     ExternalProject_Get_Property(viennahrle_external INSTALL_DIR BINARY_DIR)
 
     set(ViennaHRLE_DIR "${INSTALL_DIR}")
+    set(ViennaHRLE_INCLUDE_DIRS "${ViennaHRLE_DIR}/include")
 
     # add to buildDependencies target
     add_dependencies(buildDependencies viennahrle_external)
@@ -38,4 +39,7 @@ else()
   set(ViennaHRLE_DIR
       "${ViennaHRLE_DIR}"
       CACHE PATH "Path to ViennaHRLE installation" FORCE)
+      set(ViennaHRLE_INCLUDE_DIRS
+      "${ViennaHRLE_INCLUDE_DIRS}"
+      CACHE PATH "Path to ViennaHRLE headers" FORCE)
 endif()
