@@ -2,12 +2,13 @@
 # Check ViennaHRLE Dependency
 # ##################################################################################################
 if(DEFINED ${ViennaHRLE_DIR})
-  find_package(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR})
+  find_package(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR} NO_DEFAULT_PATH)
   message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
   add_library(viennahrle_external INTERFACE) # dummy target
 else()
   # First try to locate any local build
-  find_package(ViennaHRLE QUIET PATHS "${DEPENDENCIES_DIR}/Install/viennahrle_external" NO_DEFAULT_PATH)
+  find_package(ViennaHRLE QUIET PATHS "${DEPENDENCIES_DIR}/Install/viennahrle_external"
+               NO_DEFAULT_PATH)
   if(NOT ViennaHRLE_FOUND)
     find_package(ViennaHRLE QUIET)
   endif()
@@ -21,7 +22,7 @@ else()
     )
     ExternalProject_Add(
       viennahrle_external
-      GIT_REPOSITORY https://github.com/ViennaTools/ViennaHRLE
+      GIT_REPOSITORY https://github.com/yozoon/ViennaHRLE
       GIT_SHALLOW 1 # use --depth 1 when cloning
       CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
                  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DVIENNAHRLE_BUILD_EXAMPLES=OFF

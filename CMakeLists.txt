@@ -45,6 +45,11 @@ if(VIENNALS_BUILD_PYTHON_2 OR VIENNALS_BUILD_PYTHON_3)
   list(APPEND VIENNALS_DEPENDENCIES "pybind11_external")
 endif()
 
+include(CMakeDependentOption)
+option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
+CMAKE_DEPENDENT_OPTION(VIENNALS_STATIC_BUILD "Build template specialiciations in a way that allows static linking." OFF
+                       "VIENNALS_BUILD_SHARED_LIBS" OFF)
+
 # build dependencies
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/dependencies)
 # external project base directory for all projects in this hierarchy
@@ -55,7 +60,7 @@ include(ExternalProject)
 add_custom_target(buildDependencies)
 add_subdirectory(external/upstream)
 
-# Save the dependencies in the cache
+# Save the dependencies in the cache (only required for python externalproject)
 set(VIENNALS_DEPENDENCIES
     ${VIENNALS_DEPENDENCIES}
     CACHE INTERNAL "List of dependencies that need to be built before ViennaLS can be used" FORCE)
@@ -76,27 +81,25 @@ if(VIENNALS_USE_VTK)
   if(VTK_VERSION VERSION_LESS "9.0")
     message(STATUS "Using old VTK Version: ${VTK_VERSION}")
     set(VTK_COMPONENTS
-        "vtkCommonCore vtkIOCore vtkIOXML vtkIOXMLParser vtkFiltersCore vtkFiltersGeneral vtkFiltersGeometry"
+        vtkCommonCore;vtkIOCore;vtkIOXML;vtkIOXMLParser;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;
     )
-    # find_package is only required for populating the VTK_USE_FILE variable. This case requires
-    # that an external VTK installation is used, since our externalproject build already provides a
+    # find_package is only required for populating the VTK_USE_FILE variable. This case is only invoked when
+    #  an external VTK installation is used since our externalproject build already provides a
     # newer version of VTK.
-    find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS ${VTK_COMPONENTS})
-    set(VTK_LIBRARIES
+    find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS ${VTK_COMPONENTS} NO_DEFAULT_PATH)
+    list(APPEND VTK_LIBRARIES
         vtksys;vtkIOCore;vtkexpat;vtklz4;vtkzlib;vtklzma;vtkdoubleconversion;vtkCommonMisc;vtkCommonSystem;vtkIOXML;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;vtkCommonExecutionModel;vtkCommonDataModel;vtkCommonColor;vtkIOXMLParser;vtkIOCore;vtkCommonMisc;vtkCommonComputationalGeometry;vtkCommonTransforms;vtkCommonMath;
     )
     include(${VTK_USE_FILE})
   else()
     # Use the new component names instead of the old vtk* ones
     set(VTK_COMPONENTS
-        "CommonCore IOCore IOXML IOXMLParser FiltersCore FiltersGeneral FiltersGeometry")
+        CommonCore;IOCore;IOXML;IOXMLParser;FiltersCore;FiltersGeneral;FiltersGeometry)
     # For newer versions of VTK, only the target syntax is supported. This also automatically adds
     # the vtk include directories.
-    set(VTK_LIBRARIES
-        VTK::CommonCore;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;
-    )
+    list(APPEND VTK_LIBRARIES VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonSystem;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::WrappingTools;vtkdoubleconversion;vtkexpat;vtkfmt;vtkkissfft;vtkloguru;vtklz4;vtklzma;vtkpugixml;vtksys;vtkzlib;)
   endif()
-  list(APPEND ${VIENNALS_LIBRARIES} ${VTK_LIBRARIES})
+  list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
 endif(VIENNALS_USE_VTK)
 
 # set the correct paths for installation
@@ -112,26 +115,24 @@ set(VIENNALS_BUILD_INCLUDE_DIRS "${${PROJECT_NAME}_SOURCE_DIR}/include")
 # ##################################################################################################
 # BUILD SHARED LIBRARIES
 # ##################################################################################################
-option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
 if(VIENNALS_BUILD_SHARED_LIBS)
   # Check if all dependencies are installed
   set(DEPENDENCIES_FOUND TRUE)
-  find_package(ViennaHRLE QUIET PATHS ${ViennaHRLE_DIR})
+  find_package(ViennaHRLE QUIET CONFIG PATHS ${ViennaHRLE_DIR} NO_DEFAULT_PATH)
   if(NOT ViennaHRLE_FOUND)
     set(DEPENDENCIES_FOUND FALSE)
   endif()
   if(VIENNALS_USE_VTK)
-    message(STATUS "VTK_DIR: ${VTK_DIR}")
-    find_package(VTK QUIET PATHS ${VTK_DIR} NO_DEFAULT_PATH)# COMPONENTS "${VTK_COMPONENTS}")
+    find_package(VTK QUIET PATHS ${VTK_DIR} COMPONENTS ${VTK_COMPONENTS} NO_DEFAULT_PATH)
     if(NOT VTK_FOUND)
       set(DEPENDENCIES_FOUND FALSE)
     endif()
   endif()
   # Show a message if one or more of the dependencies are missing
   if(NOT DEPENDENCIES_FOUND)
-      message(
-        FATAL_ERROR
-          "One of the dependencies hasn't been built yet and thus can't be used by the precompiled libraries target.\n\
+    message(
+      FATAL_ERROR
+        "One of the dependencies hasn't been built yet and thus can't be used by the precompiled libraries target.\n\
     Try the following steps to fix the problem:\n\
     1. Turn off precompiled libraries target by disabling the VIENNALS_BUILD_SHARED_LIBS option when configuring the project\n\
       (e.g. with the `-D VIENNALS_BUILD_SHARED_LIBS=OFF` flag)\n\
@@ -140,26 +141,73 @@ if(VIENNALS_BUILD_SHARED_LIBS)
       (e.g. with the `-D VIENNALS_BUILD_SHARED_LIBS=ON` flag)\n\
     4. Now the configure step should pick up the built dependencies and proceed as intended.")
   endif()
+
   # Add all specialisation source files
   file(GLOB SPECIALISATION_CPPS "lib/*.cpp")
-  # Decide wheter to build a static or shared library
+
+  # Decide wheter to build the precompiled headers as a static or shared library
   if(VIENNALS_STATIC_BUILD)
     add_library(${PROJECT_NAME} STATIC ${SPECIALISATION_CPPS})
-  else(VIENNALS_STATIC_BUILD)
+
+    # Find paths to all static library targets
+    foreach(_lib ${VIENNALS_LIBRARIES})
+      if(TARGET ${_lib})
+        get_target_property(_target_type ${_lib} TYPE)
+        # message(STATUS "${_lib} ${_target_type}")
+        if(_target_type STREQUAL "STATIC_LIBRARY")
+          list(APPEND static_lib_files $<TARGET_FILE:${_lib}>)
+        elseif(_target_type STREQUAL "SHARED_LIBRARY")
+          message(
+            FATAL_ERROR "Not all required libraries can be statically linked!\n- Caused by ${_lib}"
+          )
+        endif()
+      endif()
+    endforeach()
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "^(Clang|GNU)$")
+      # Create an archiver (ar) script that bundles all static library dependencies into one bundled
+      # static library
+      set(AR_FILE_CONTENT
+          "CREATE ${CMAKE_BINARY_DIR}/libViennaLS.a\nADDLIB ${CMAKE_BINARY_DIR}/libViennaLS.a")
+      foreach(_statlib ${static_lib_files})
+        set(AR_FILE_CONTENT "${AR_FILE_CONTENT}\nADDLIB ${_statlib}")
+      endforeach()
+      set(AR_FILE_CONTENT "${AR_FILE_CONTENT}\nSAVE\nEND\n")
+
+      file(
+        GENERATE
+        OUTPUT "${CMAKE_BINARY_DIR}/bundle.ar"
+        CONTENT "${AR_FILE_CONTENT}")
+
+      # Execute the archiver script after the target has been built
+      add_custom_command(
+        TARGET ${PROJECT_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_AR} -M < ${CMAKE_BINARY_DIR}/bundle.ar
+        COMMENT "Bundling all static libraries into one."
+        VERBATIM)
+    else()
+      message(
+        FATAL_ERROR
+          "Building a static version of ${PROJECT_NAME} is currently not supported with the selected build tools."
+      )
+    endif()
+  else()
+    # Shared library
     add_library(${PROJECT_NAME} SHARED ${SPECIALISATION_CPPS})
-  endif(VIENNALS_STATIC_BUILD)
+  endif()
 
   target_link_libraries(${PROJECT_NAME} ${VIENNALS_LIBRARIES})
-  # target_link_options(${PROJECT_NAME} PRIVATE --whole-archive)
   # Include the project header files and ViennaHRLE
-  target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${VIENNAHRLE_INCLUDE_DIRS})
-  # Also include VTK if we enabled VTK support
+  target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/"
+                                                     ${VIENNAHRLE_INCLUDE_DIRS})
+  # Also include VTK if we enabled VTK support (with VTK 9+ this is done automatically when we link the vtk targets - the VTK_INCLUDE_DIRS variable is empty in that case)
   if(VIENNALS_USE_VTK)
     target_include_directories(${PROJECT_NAME} PRIVATE ${VTK_INCLUDE_DIRS})
   endif()
   set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 else()
-  # By default, create header only library target
+  # By default, create header only library
   add_library(${PROJECT_NAME} INTERFACE)
 endif()
 

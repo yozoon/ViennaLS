@@ -2,7 +2,7 @@
 # static libraries
 macro(CHECK_ALL_STATIC RESULT LIBRARY_TARGETS)
   set(_all_static TRUE)
-  foreach(_lib ${LIBRARY_TARGETS})
+  foreach(_lib IN LISTS ${LIBRARY_TARGETS})
     if(TARGET ${_lib})
       get_target_property(_target_type ${_lib} TYPE)
       # message(STATUS "${_lib}: ${_target_type}")

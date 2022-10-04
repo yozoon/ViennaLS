@@ -16,19 +16,19 @@ else()
   set(VTK_EXTERNAL_INSTALL "vtk-external")
 endif()
 
-set(VTK_MODULES
-    "vtkCommonCore vtkIOCore vtkIOXML vtkIOXMLParser vtkFiltersCore vtkFiltersGeneral vtkFiltersGeometry"
+set(VTK_COMPONENTS
+    vtkCommonCore;vtkIOCore;vtkIOXML;vtkIOXMLParser;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry
 )
 
 # List of VTK 9+ library targets
 list(
   APPEND
   VTK_LIBRARY_TARGETS
-  "VTK::CommonCore;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry"
+  VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonSystem;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::WrappingTools;
 )
 
 if(DEFINED ${VTK_DIR})
-  find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS "${VTK_COMPONENTS}")
+  find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS "${VTK_COMPONENTS}" NO_DEFAULT_PATH)
   if(VIENNALS_STATIC_BUILD)
     check_all_static(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
     if(NOT ${ALL_STATIC})
@@ -47,18 +47,23 @@ else()
 
   # If that fails look for a system installation
   if(NOT VTK_FOUND)
-    find_package(VTK QUIET COMPONENTS "${VTK_COMPONENTS}")
-    # In case of a system installation we also have to check if the library can be statically linked
-    if(VIENNALS_STATIC_BUILD)
-      check_all_static(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
-      if(NOT ${ALL_STATIC})
-        set(VTK_FOUND FALSE)
-        message(
-          STATUS
-            "The detected installation of VTK was not built to be statically linked. Static VTK libraries will be built from source."
-        )
-      endif()
-    endif()
+    find_package(VTK QUIET PATHS ${VTK_DIR} COMPONENTS "${VTK_COMPONENTS}")
+  endif()
+  # Check if the library can be statically linked
+  check_all_static(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
+  if(VIENNALS_STATIC_BUILD AND NOT ${ALL_STATIC})
+    set(VTK_FOUND FALSE)
+    message(
+      STATUS
+        "The detected installation of VTK was not built to be statically linked. Static VTK libraries will be built from source."
+    )
+  endif()
+  if(NOT VIENNALS_STATIC_BUILD AND ${ALL_STATIC})
+    set(VTK_FOUND FALSE)
+    message(
+      STATUS
+        "The detected installation of VTK was built to be statically linked but shared libraries are required. Shared VTK libraries will be built from source."
+    )
   endif()
   if(VTK_FOUND)
     message(STATUS "Found VTK at ${VTK_DIR}.")
@@ -127,7 +132,7 @@ else()
     # Set the required variables
     set(VTK_DIR ${INSTALL_DIR})
     set(VTK_VERSION 9.1)
-    set(VTK_INCLUDE_DIRS "${VTK_DIR}/include/vtk-9.1")
+    set(VTK_INCLUDE_DIRS "${VTK_DIR}/include/vtk-${VTK_VERSION}")
 
     # add to buildDependencies target
     add_dependencies(buildDependencies vtk_external)
