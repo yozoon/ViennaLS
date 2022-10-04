@@ -47,7 +47,7 @@ else()
 
   # If that fails look for a system installation
   if(NOT VTK_FOUND)
-    find_package(VTK QUIET PATHS ${VTK_DIR} COMPONENTS "${VTK_COMPONENTS}")
+    find_package(VTK QUIET COMPONENTS "${VTK_COMPONENTS}")
   endif()
   # Check if the library can be statically linked
   check_all_static(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
