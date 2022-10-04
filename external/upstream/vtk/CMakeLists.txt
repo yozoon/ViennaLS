@@ -1,6 +1,25 @@
 # ##################################################################################################
 # Check VTK Dependency
 # ##################################################################################################
+
+# Get the number of cores
+include(ProcessorCount)
+ProcessorCount(NPROC)
+
+# if this is a static build, also build vtk statically
+if(VIENNALS_STATIC_BUILD)
+  set(VTK_EXTERNAL_BUILD_SHARED OFF)
+  set(VTK_EXTERNAL_INSTALL "static-vtk-external")
+  message(STATUS "Static build: Using static VTK libs.")
+else()
+  set(VTK_EXTERNAL_BUILD_SHARED ON)
+  set(VTK_EXTERNAL_INSTALL "vtk-external")
+endif()
+
+set(VTK_MODULES
+    "vtkCommonCore vtkIOCore vtkIOXML vtkIOXMLParser vtkFiltersCore vtkFiltersGeneral vtkFiltersGeometry"
+)
+
 # List of VTK 9+ library targets
 list(
   APPEND
@@ -9,17 +28,9 @@ list(
 )
 
 if(DEFINED ${VTK_DIR})
-  find_package(
-    VTK CONFIG REQUIRED PATHS ${VTK_DIR}
-    COMPONENTS vtkCommonCore
-               vtkIOCore
-               vtkIOXML
-               vtkIOXMLParser
-               vtkFiltersCore
-               vtkFiltersGeneral
-               vtkFiltersGeometry)
+  find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS "${VTK_COMPONENTS}")
   if(VIENNALS_STATIC_BUILD)
-    CHECK_ALL_STATIC(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
+    check_all_static(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
     if(NOT ${ALL_STATIC})
       message(
         FATAL_ERROR
@@ -30,23 +41,23 @@ if(DEFINED ${VTK_DIR})
   message(STATUS "Found VTK at ${VTK_DIR}.")
   add_library(vtk_external INTERFACE) # dummy target
 else()
-  find_package(
-    VTK QUIET
-    COMPONENTS vtkCommonCore
-               vtkIOCore
-               vtkIOXML
-               vtkIOXMLParser
-               vtkFiltersCore
-               vtkFiltersGeneral
-               vtkFiltersGeometry)
-  if(VIENNALS_STATIC_BUILD)
-    CHECK_ALL_STATIC(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
-    if(NOT ${ALL_STATIC})
-      set(VTK_FOUND FALSE)
-      message(
-        STATUS
-          "The found installation of VTK was not built to be statically linked. Static VTK libraries will be built from source."
-      )
+  # First try to locate any local build
+  find_package(VTK QUIET PATHS "${DEPENDENCIES_DIR}/Install/${VTK_EXTERNAL_INSTALL}"
+               COMPONENTS "${VTK_COMPONENTS}" NO_DEFAULT_PATH)
+
+  # If that fails look for a system installation
+  if(NOT VTK_FOUND)
+    find_package(VTK QUIET COMPONENTS "${VTK_COMPONENTS}")
+    # In case of a system installation we also have to check if the library can be statically linked
+    if(VIENNALS_STATIC_BUILD)
+      check_all_static(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
+      if(NOT ${ALL_STATIC})
+        set(VTK_FOUND FALSE)
+        message(
+          STATUS
+            "The detected installation of VTK was not built to be statically linked. Static VTK libraries will be built from source."
+        )
+      endif()
     endif()
   endif()
   if(VTK_FOUND)
@@ -57,21 +68,6 @@ else()
       STATUS
         "Couldn't find VTK. Dependency will be built with the buildDependencies target (e.g. `make buildDependencies`)."
     )
-    # if this is a static build, build vtk statically
-    if(VIENNALS_STATIC_BUILD)
-      set(VTK_EXTERNAL_BUILD_SHARED OFF)
-      set(VTK_EXTERNAL_INSTALL "static-vtk-external")
-      message(STATUS "Static build: Using static VTK libs.")
-    else()
-      set(VTK_EXTERNAL_BUILD_SHARED ON)
-      set(VTK_EXTERNAL_INSTALL "vtk-external")
-    endif()
-
-    # Get the number of cores
-    include(ProcessorCount)
-    ProcessorCount(NPROC)
-
-    set(VTK_VERSION 9.1)
 
     ExternalProject_Add(
       vtk_external
@@ -84,6 +80,7 @@ else()
       TMP_DIR "${DEPENDENCIES_DIR}/tmp/${VTK_EXTERNAL_INSTALL}"
       STAMP_DIR "${DEPENDENCIES_DIR}/Stamp/${VTK_EXTERNAL_INSTALL}"
       BINARY_DIR "${DEPENDENCIES_DIR}/Build/${VTK_EXTERNAL_INSTALL}"
+      INSTALL_DIR "${DEPENDENCIES_DIR}/Install/${VTK_EXTERNAL_INSTALL}"
       CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
                  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -127,25 +124,25 @@ else()
     # Get install and build directory
     ExternalProject_Get_Property(vtk_external INSTALL_DIR BINARY_DIR)
 
-    set(VTK_DIR "${INSTALL_DIR}")
+    # Set the required variables
+    set(VTK_DIR ${INSTALL_DIR})
+    set(VTK_VERSION 9.1)
     set(VTK_INCLUDE_DIRS "${VTK_DIR}/include/vtk-9.1")
-
-    message(STATUS "${VTK_DIR}")
 
     # add to buildDependencies target
     add_dependencies(buildDependencies vtk_external)
   endif()
-  # Write VTK_DIR and VTK_VERSION to the cache so that we can use it in the toplevel CMakeLists file
+  # Write VTK_DIR, VTK_VERSION and VTK_INCLUDE_DIRS to the cache so that we can use it in the
+  # toplevel CMakeLists file
   set(VTK_DIR
       ${VTK_DIR}
       CACHE PATH "Path to VTK installation" FORCE)
-  message(STATUS "${VTK_DIR}")
-  
+
   set(VTK_VERSION
       ${VTK_VERSION}
       CACHE STRING "The VTK version" FORCE)
-  set(
-      VTK_INCLUDE_DIRS
+
+  set(VTK_INCLUDE_DIRS
       ${VTK_INCLUDE_DIRS}
       CACHE STRING "Path to VTK headers" FORCE)
 endif()

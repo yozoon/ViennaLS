@@ -114,23 +114,20 @@ set(VIENNALS_BUILD_INCLUDE_DIRS "${${PROJECT_NAME}_SOURCE_DIR}/include")
 # ##################################################################################################
 option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
 if(VIENNALS_BUILD_SHARED_LIBS)
+  # Check if all dependencies are installed
   set(DEPENDENCIES_FOUND TRUE)
   find_package(ViennaHRLE QUIET PATHS ${ViennaHRLE_DIR})
   if(NOT ViennaHRLE_FOUND)
     set(DEPENDENCIES_FOUND FALSE)
   endif()
-  message(STATUS "VHRLE ${DEPENDENCIES_FOUND}")
   if(VIENNALS_USE_VTK)
-  message(STATUS "COMPONENTS ${VTK_COMPONENTS}")
-    message(STATUS ${VTK_DIR})
+    message(STATUS "VTK_DIR: ${VTK_DIR}")
     find_package(VTK QUIET PATHS ${VTK_DIR} NO_DEFAULT_PATH)# COMPONENTS "${VTK_COMPONENTS}")
     if(NOT VTK_FOUND)
       set(DEPENDENCIES_FOUND FALSE)
     endif()
-    message(STATUS ${VTK_DIR})
-    message(STATUS "VTKF ${DEPENDENCIES_FOUND}")
   endif()
-  message(STATUS "INCLUDE: ${VTK_INCLUDE_DIRS}")
+  # Show a message if one or more of the dependencies are missing
   if(NOT DEPENDENCIES_FOUND)
       message(
         FATAL_ERROR
@@ -143,20 +140,26 @@ if(VIENNALS_BUILD_SHARED_LIBS)
       (e.g. with the `-D VIENNALS_BUILD_SHARED_LIBS=ON` flag)\n\
     4. Now the configure step should pick up the built dependencies and proceed as intended.")
   endif()
-  # add all specialisation source files
+  # Add all specialisation source files
   file(GLOB SPECIALISATION_CPPS "lib/*.cpp")
+  # Decide wheter to build a static or shared library
   if(VIENNALS_STATIC_BUILD)
     add_library(${PROJECT_NAME} STATIC ${SPECIALISATION_CPPS})
   else(VIENNALS_STATIC_BUILD)
     add_library(${PROJECT_NAME} SHARED ${SPECIALISATION_CPPS})
   endif(VIENNALS_STATIC_BUILD)
+
   target_link_libraries(${PROJECT_NAME} ${VIENNALS_LIBRARIES})
+  # target_link_options(${PROJECT_NAME} PRIVATE --whole-archive)
+  # Include the project header files and ViennaHRLE
   target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${VIENNAHRLE_INCLUDE_DIRS})
+  # Also include VTK if we enabled VTK support
   if(VIENNALS_USE_VTK)
     target_include_directories(${PROJECT_NAME} PRIVATE ${VTK_INCLUDE_DIRS})
   endif()
   set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 else()
+  # By default, create header only library target
   add_library(${PROJECT_NAME} INTERFACE)
 endif()
 

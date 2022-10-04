@@ -6,7 +6,11 @@ if(DEFINED ${ViennaHRLE_DIR})
   message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
   add_library(viennahrle_external INTERFACE) # dummy target
 else()
-  find_package(ViennaHRLE QUIET)
+  # First try to locate any local build
+  find_package(ViennaHRLE QUIET PATHS "${DEPENDENCIES_DIR}/Install/viennahrle_external" NO_DEFAULT_PATH)
+  if(NOT ViennaHRLE_FOUND)
+    find_package(ViennaHRLE QUIET)
+  endif()
   if(ViennaHRLE_FOUND)
     message(STATUS "Found ViennaHRLE at ${ViennaHRLE_DIR}.")
     add_library(viennahrle_external INTERFACE) # dummy target
@@ -29,6 +33,7 @@ else()
     # Get install and build directory
     ExternalProject_Get_Property(viennahrle_external INSTALL_DIR BINARY_DIR)
 
+    # Set the required variables
     set(ViennaHRLE_DIR "${INSTALL_DIR}")
     set(ViennaHRLE_INCLUDE_DIRS "${ViennaHRLE_DIR}/include")
 
@@ -39,7 +44,7 @@ else()
   set(ViennaHRLE_DIR
       "${ViennaHRLE_DIR}"
       CACHE PATH "Path to ViennaHRLE installation" FORCE)
-      set(ViennaHRLE_INCLUDE_DIRS
+  set(ViennaHRLE_INCLUDE_DIRS
       "${ViennaHRLE_INCLUDE_DIRS}"
       CACHE PATH "Path to ViennaHRLE headers" FORCE)
 endif()
