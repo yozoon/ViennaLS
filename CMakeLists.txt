@@ -47,8 +47,9 @@ endif()
 
 include(CMakeDependentOption)
 option(VIENNALS_BUILD_SHARED_LIBS "Build template specialisations for shorter compile times." OFF)
-CMAKE_DEPENDENT_OPTION(VIENNALS_STATIC_BUILD "Build template specialiciations in a way that allows static linking." OFF
-                       "VIENNALS_BUILD_SHARED_LIBS" OFF)
+cmake_dependent_option(
+  VIENNALS_STATIC_BUILD "Build template specialiciations in a way that allows static linking." OFF
+  "VIENNALS_BUILD_SHARED_LIBS" OFF)
 
 # build dependencies
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/dependencies)
@@ -83,12 +84,14 @@ if(VIENNALS_USE_VTK)
     set(VTK_COMPONENTS
         vtkCommonCore;vtkIOCore;vtkIOXML;vtkIOXMLParser;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;
     )
-    # find_package is only required for populating the VTK_USE_FILE variable. This case is only invoked when
-    #  an external VTK installation is used since our externalproject build already provides a
-    # newer version of VTK.
+    # find_package is only required for populating the VTK_USE_FILE variable. This case is only
+    # invoked when an external VTK installation is used since our externalproject build already
+    # provides a newer version of VTK.
     find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS ${VTK_COMPONENTS} NO_DEFAULT_PATH)
-    list(APPEND VTK_LIBRARIES
-        vtksys;vtkIOCore;vtkexpat;vtklz4;vtkzlib;vtklzma;vtkdoubleconversion;vtkCommonMisc;vtkCommonSystem;vtkIOXML;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;vtkCommonExecutionModel;vtkCommonDataModel;vtkCommonColor;vtkIOXMLParser;vtkIOCore;vtkCommonMisc;vtkCommonComputationalGeometry;vtkCommonTransforms;vtkCommonMath;
+    list(
+      APPEND
+      VTK_LIBRARIES
+      vtksys;vtkIOCore;vtkexpat;vtklz4;vtkzlib;vtklzma;vtkdoubleconversion;vtkCommonMisc;vtkCommonSystem;vtkIOXML;vtkFiltersCore;vtkFiltersGeneral;vtkFiltersGeometry;vtkCommonExecutionModel;vtkCommonDataModel;vtkCommonColor;vtkIOXMLParser;vtkIOCore;vtkCommonMisc;vtkCommonComputationalGeometry;vtkCommonTransforms;vtkCommonMath;
     )
     include(${VTK_USE_FILE})
   else()
@@ -97,7 +100,11 @@ if(VIENNALS_USE_VTK)
         CommonCore;IOCore;IOXML;IOXMLParser;FiltersCore;FiltersGeneral;FiltersGeometry)
     # For newer versions of VTK, only the target syntax is supported. This also automatically adds
     # the vtk include directories.
-    list(APPEND VTK_LIBRARIES VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonSystem;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::WrappingTools;vtkdoubleconversion;vtkexpat;vtkfmt;vtkkissfft;vtkloguru;vtklz4;vtklzma;vtkpugixml;vtksys;vtkzlib;)
+    list(
+      APPEND
+      VTK_LIBRARIES
+      VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonSystem;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::WrappingTools;vtkdoubleconversion;vtkexpat;vtkfmt;vtkkissfft;vtkloguru;vtklz4;vtklzma;vtkpugixml;vtksys;vtkzlib;
+    )
   endif()
   list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
 endif(VIENNALS_USE_VTK)
@@ -158,8 +165,7 @@ if(VIENNALS_BUILD_SHARED_LIBS)
           list(APPEND static_lib_files $<TARGET_FILE:${_lib}>)
         elseif(_target_type STREQUAL "SHARED_LIBRARY")
           message(
-            FATAL_ERROR "Not all required libraries can be statically linked!\n- Caused by ${_lib}"
-          )
+            FATAL_ERROR "Not all required libraries can be statically linked!\n- Caused by ${_lib}")
         endif()
       endif()
     endforeach()
@@ -201,7 +207,8 @@ if(VIENNALS_BUILD_SHARED_LIBS)
   # Include the project header files and ViennaHRLE
   target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/"
                                                      ${VIENNAHRLE_INCLUDE_DIRS})
-  # Also include VTK if we enabled VTK support (with VTK 9+ this is done automatically when we link the vtk targets - the VTK_INCLUDE_DIRS variable is empty in that case)
+  # Also include VTK if we enabled VTK support (with VTK 9+ this is done automatically when we link
+  # the vtk targets - the VTK_INCLUDE_DIRS variable is empty in that case)
   if(VIENNALS_USE_VTK)
     target_include_directories(${PROJECT_NAME} PRIVATE ${VTK_INCLUDE_DIRS})
   endif()
