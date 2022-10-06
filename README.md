@@ -71,8 +71,7 @@ make install
 
 ## Installing with dependencies already installed on the system
 
-If you want to use your own install of dependencies, just specify the directories of dependencies in CMake:
-The CMake configuration automatically check if the dependencies are installed. If CMake is unable to find them, the dependencies will be built from source with _buildDependencies_ target.
+The CMake configuration automatically checks if the dependencies are installed. If CMake is unable to find them, the dependencies will be built from source with the _buildDependencies_ target.
 
 ```bash
 git clone github.com/ViennaTools/ViennaLS.git
