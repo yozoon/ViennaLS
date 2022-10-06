@@ -1,5 +1,5 @@
-# external project base directory for all projects in this hierarchy.
-# Set this variable here so that pythonBindings are not affected
+# external project base directory for all projects in this hierarchy. Set this variable here so that
+# pythonBindings are not affected
 set_property(DIRECTORY PROPERTY EP_BASE ${DEPENDENCIES_DIR})
 
 # Macro to check if all of the libraries provided by the target list LIBRARY_TARGETS are compiled as
