@@ -9,11 +9,11 @@ ProcessorCount(NPROC)
 # if this is a static build, also build vtk statically
 if(VIENNALS_STATIC_BUILD)
   set(VTK_EXTERNAL_BUILD_SHARED OFF)
-  set(VTK_EXTERNAL_INSTALL "static-vtk-external")
+  set(VTK_EXTERNAL_INSTALL "static_vtk_external")
   message(STATUS "Static build: Using static VTK libs.")
 else()
   set(VTK_EXTERNAL_BUILD_SHARED ON)
-  set(VTK_EXTERNAL_INSTALL "vtk-external")
+  set(VTK_EXTERNAL_INSTALL "vtk_external")
 endif()
 
 set(VTK_COMPONENTS
@@ -21,16 +21,15 @@ set(VTK_COMPONENTS
 )
 
 # List of VTK 9+ library targets
-list(
-  APPEND
-  VTK_LIBRARY_TARGETS
-  VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonSystem;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::WrappingTools;
+set(VTK_LIBRARY_TARGETS
+    VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonSystem;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::IOCore;VTK::IOXML;VTK::IOXMLParser;VTK::WrappingTools
 )
 
+# If the user provided a path to a VTK installation
 if(DEFINED ${VTK_DIR})
   find_package(VTK CONFIG REQUIRED PATHS ${VTK_DIR} COMPONENTS "${VTK_COMPONENTS}" NO_DEFAULT_PATH)
   if(VIENNALS_STATIC_BUILD)
-    check_all_static(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
+    check_all_type(ALL_STATIC "STATIC_LIBRARY" "${VTK_LIBRARY_TARGETS}")
     if(NOT ${ALL_STATIC})
       message(
         FATAL_ERROR
@@ -40,17 +39,18 @@ if(DEFINED ${VTK_DIR})
   endif()
   message(STATUS "Found VTK at ${VTK_DIR}.")
   add_library(vtk_external INTERFACE) # dummy target
-else()
+else() # Automatically detect installation
   # First try to locate any local build
-  find_package(VTK QUIET PATHS "${DEPENDENCIES_DIR}/Install/${VTK_EXTERNAL_INSTALL}"
+  find_package(VTK QUIET PATHS "${DEPENDENCIES_DIR}/Build/${VTK_EXTERNAL_INSTALL}"
                COMPONENTS "${VTK_COMPONENTS}" NO_DEFAULT_PATH)
 
   # If that fails look for a system installation
   if(NOT VTK_FOUND)
     find_package(VTK QUIET COMPONENTS "${VTK_COMPONENTS}")
   endif()
+
   # Check if the library can be statically linked
-  check_all_static(ALL_STATIC "${VTK_LIBRARY_TARGETS}")
+  check_all_type(ALL_STATIC "STATIC_LIBRARY" "${VTK_LIBRARY_TARGETS}")
   if(VIENNALS_STATIC_BUILD AND NOT ${ALL_STATIC})
     set(VTK_FOUND FALSE)
     message(
@@ -58,13 +58,7 @@ else()
         "The detected installation of VTK was not built to be statically linked. Static VTK libraries will be built from source."
     )
   endif()
-  if(NOT VIENNALS_STATIC_BUILD AND ${ALL_STATIC})
-    set(VTK_FOUND FALSE)
-    message(
-      STATUS
-        "The detected installation of VTK was built to be statically linked but shared libraries are required. Shared VTK libraries will be built from source."
-    )
-  endif()
+
   if(VTK_FOUND)
     message(STATUS "Found VTK at ${VTK_DIR}.")
     add_library(vtk_external INTERFACE) # dummy target
@@ -120,23 +114,25 @@ else()
                  -DVTK_MODULE_ENABLE_VTK_FiltersGeneral:BOOL=YES
                  -DVTK_MODULE_ENABLE_VTK_FiltersGeometry:BOOL=YES
       BUILD_COMMAND ${CMAKE_COMMAND} --build . --parallel ${NPROC}
-      INSTALL_COMMAND ${CMAKE_COMMAND} --install .
+      INSTALL_COMMAND ""
       UPDATE_COMMAND ""
       USES_TERMINAL_DOWNLOAD 1
       USES_TERMINAL_UPDATE 1
       GIT_PROGRESS 1)
 
     # Get install and build directory
-    ExternalProject_Get_Property(vtk_external INSTALL_DIR BINARY_DIR)
+    ExternalProject_Get_Property(vtk_external BINARY_DIR)
 
-    # Set the required variables
-    set(VTK_DIR ${INSTALL_DIR})
+    # Set the required variables. Use BINARY_DIR as VTK_DIR since we used an empy install command
+    set(VTK_DIR "${BINARY_DIR}")
+
     set(VTK_VERSION 9.1)
     set(VTK_INCLUDE_DIRS "${VTK_DIR}/include/vtk-${VTK_VERSION}")
 
     # add to buildDependencies target
     add_dependencies(buildDependencies vtk_external)
   endif()
+
   # Write VTK_DIR, VTK_VERSION and VTK_INCLUDE_DIRS to the cache so that we can use it in the
   # toplevel CMakeLists file
   set(VTK_DIR

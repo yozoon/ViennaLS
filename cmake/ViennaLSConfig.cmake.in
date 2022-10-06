@@ -46,7 +46,6 @@ if(@VIENNALS_USE_VTK@)
     @VTK_COMPONENTS@
     NO_DEFAULT_PATH)
 
-  # message(STATUS "Found VTK")
   add_compile_definitions(VIENNALS_USE_VTK)
 
   # use VTK_USE_FILE for older versions of VTK
@@ -58,16 +57,17 @@ if(@VIENNALS_USE_VTK@)
   set(VTK_LIBRARIES @VTK_LIBRARIES@)
 
   list(APPEND VIENNALS_LIBRARIES ${VTK_LIBRARIES})
-  list(APPEND VIENNALS_PYTHON_LIBRARIES ${VTK_LIBRARIES})
 endif()
 
-if(@VIENNALS_BUILD_SHARED_LIBS@)
-  option(VIENNALS_USE_SHARED_LIBS "Use precompiled headers" ON)
-  if(VIENNALS_USE_SHARED_LIBS)
-    add_definitions(-DVIENNALS_USE_SHARED_LIBS)
+set(VIENNALS_PYTHON_LIBRARIES ${VIENNALS_LIBRARIES})
+
+if(@VIENNALS_PRECOMPILE_HEADERS@)
+  option(VIENNALS_USE_PRECOMPILED "Use precompiled headers" ON)
+  if(VIENNALS_USE_PRECOMPILED)
+    add_definitions(-DVIENNALS_USE_PRECOMPILED)
     link_directories(@CMAKE_INSTALL_PREFIX@/lib)
     list(APPEND VIENNALS_LIBRARIES @PROJECT_NAME@)
-  endif(VIENNALS_USE_SHARED_LIBS)
+  endif()
 endif()
 
 check_required_components("@PROJECT_NAME@")
