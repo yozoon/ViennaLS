@@ -2,7 +2,7 @@
 # the provided type (TARGET_TYPE: e.g. "STATIC_LIBRARY", "SHARED_LIBRARY", ...)
 macro(CHECK_ALL_TYPE RESULT TARGET_TYPE LIBRARY_TARGETS)
   set(_all_match TRUE)
-  foreach(_lib IN LISTS ${LIBRARY_TARGETS})
+  foreach(_lib ${LIBRARY_TARGETS})
     if(TARGET ${_lib})
       get_target_property(_target_type ${_lib} TYPE)
       # message(STATUS "${_lib}: ${_target_type} ${TARGET_TYPE}")

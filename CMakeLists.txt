@@ -50,7 +50,6 @@ option(VIENNALS_PRECOMPILE_HEADERS "Build template specialisations for shorter c
 # dependencies before we can enable the PRECOMPILE_HEADERS option.
 option(VIENNALS_STATIC_BUILD "Build template specialiciations in a way that allows static linking."
        OFF)
-message(STATUS "vls static ${VIENNALS_STATIC_BUILD}")
 
 # build dependencies
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/dependencies)
@@ -154,7 +153,7 @@ if(VIENNALS_PRECOMPILE_HEADERS)
     add_library(${PROJECT_NAME} STATIC ${SPECIALISATION_CPPS})
 
     # Find paths to all static library targets
-    foreach(_lib IN LISTS ${VIENNALS_LIBRARIES})
+    foreach(_lib ${VIENNALS_LIBRARIES})
       if(TARGET ${_lib})
         get_target_property(_target_type ${_lib} TYPE)
         message(STATUS "${_lib} ${_target_type}")
