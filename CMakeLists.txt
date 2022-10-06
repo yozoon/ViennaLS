@@ -156,7 +156,7 @@ if(VIENNALS_PRECOMPILE_HEADERS)
     foreach(_lib ${VIENNALS_LIBRARIES})
       if(TARGET ${_lib})
         get_target_property(_target_type ${_lib} TYPE)
-        message(STATUS "${_lib} ${_target_type}")
+        # message(STATUS "${_lib} ${_target_type}")
         if(_target_type STREQUAL "STATIC_LIBRARY")
           list(APPEND static_lib_files $<TARGET_FILE:${_lib}>)
         elseif(_target_type STREQUAL "SHARED_LIBRARY")
@@ -166,7 +166,7 @@ if(VIENNALS_PRECOMPILE_HEADERS)
       endif()
     endforeach()
 
-    if(CMAKE_CXX_COMPILER_ID MATCHES "^(Clang|GNU|AppleClang)$")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "^(Clang|GNU)$")
       # Create an archiver (ar) script that bundles all static library dependencies into one bundled
       # static library
       set(AR_FILE_CONTENT
@@ -188,6 +188,20 @@ if(VIENNALS_PRECOMPILE_HEADERS)
         COMMAND ${CMAKE_AR} -M < ${CMAKE_BINARY_DIR}/bundle.ar
         COMMENT "Bundling all static libraries into one."
         VERBATIM)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(AppleClang)$")
+      string(REPLACE ";" " " static_libs_args "${static_lib_files}")
+    
+      find_program(libtool_bin libtool)
+    
+      # TODO: check if libtool found
+
+      add_custom_command(
+        TARGET ${PROJECT_NAME}
+        POST_BUILD
+        COMMAND "${libtool_bin} -static -o libViennaLS.a ${CMAKE_BINARY_DIR}/libViennaLS.a ${static_libs_args}"
+        COMMENT "Bundling all static libraries into one."
+        VERBATIM
+      )
     else()
       message(
         FATAL_ERROR
