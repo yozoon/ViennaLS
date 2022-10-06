@@ -189,19 +189,17 @@ if(VIENNALS_PRECOMPILE_HEADERS)
         COMMENT "Bundling all static libraries into one."
         VERBATIM)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(AppleClang)$")
-      string(REPLACE ";" " " static_libs_args "${static_lib_files}")
-    
       find_program(libtool_bin libtool)
-    
+
       # TODO: check if libtool found
-      list(APPEND bundle_command ${libtool_bin} -static -o libViennaLS.a ${CMAKE_BINARY_DIR}/libViennaLS.a ${static_libs_args})
+
       add_custom_command(
         TARGET ${PROJECT_NAME}
         POST_BUILD
-        COMMAND ${bundle_command}
+        COMMAND ${libtool_bin} -static -o libViennaLS.a ${CMAKE_BINARY_DIR}/libViennaLS.a
+                ${static_libs_args}
         COMMENT "Bundling all static libraries into one."
-        VERBATIM
-      )
+        VERBATIM)
     else()
       message(
         FATAL_ERROR
