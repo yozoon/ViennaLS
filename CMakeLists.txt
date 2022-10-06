@@ -166,7 +166,7 @@ if(VIENNALS_PRECOMPILE_HEADERS)
       endif()
     endforeach()
 
-    if(CMAKE_CXX_COMPILER_ID MATCHES "^(Clang|GNU)$")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "^(Clang|GNU|AppleClang)$")
       # Create an archiver (ar) script that bundles all static library dependencies into one bundled
       # static library
       set(AR_FILE_CONTENT
