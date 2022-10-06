@@ -194,11 +194,11 @@ if(VIENNALS_PRECOMPILE_HEADERS)
       find_program(libtool_bin libtool)
     
       # TODO: check if libtool found
-
+      list(APPEND bundle_command ${libtool_bin} -static -o libViennaLS.a ${CMAKE_BINARY_DIR}/libViennaLS.a ${static_libs_args})
       add_custom_command(
         TARGET ${PROJECT_NAME}
         POST_BUILD
-        COMMAND "${libtool_bin} -static -o libViennaLS.a ${CMAKE_BINARY_DIR}/libViennaLS.a ${static_libs_args}"
+        COMMAND ${bundle_command}
         COMMENT "Bundling all static libraries into one."
         VERBATIM
       )
