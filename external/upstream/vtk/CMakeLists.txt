@@ -47,10 +47,12 @@ else() # Automatically detect installation
   # If that fails look for a system installation
   if(NOT VTK_FOUND)
     find_package(VTK QUIET COMPONENTS "${VTK_COMPONENTS}")
-  
+  endif()
+
+  if(VIENNALS_STATIC_BUILD)
     # Check if the library can be statically linked
     check_all_type(ALL_STATIC "STATIC_LIBRARY" "${VTK_LIBRARY_TARGETS}")
-    if(VIENNALS_STATIC_BUILD AND NOT ${ALL_STATIC})
+    if(NOT ${ALL_STATIC})
       set(VTK_FOUND FALSE)
       message(
         STATUS
