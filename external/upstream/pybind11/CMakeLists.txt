@@ -1,4 +1,4 @@
-if(DEFINED ${pybind11_DIR})
+if(DEFINED pybind11_DIR)
   find_package(pybind11 REQUIRED PATHS ${pybind11_FOUND})
   message(STATUS "pybind11_DIR: ${pybind11_DIR}")
   add_library(pybind11_external INTERFACE) # dummy target

@@ -1,7 +1,7 @@
 # ##################################################################################################
 # Check ViennaHRLE Dependency
 # ##################################################################################################
-if(DEFINED ${ViennaHRLE_DIR})
+if(DEFINED ViennaHRLE_DIR)
   find_package(ViennaHRLE REQUIRED PATHS ${ViennaHRLE_DIR} NO_DEFAULT_PATH)
   message(STATUS "ViennaHRLE_DIR: ${ViennaHRLE_DIR}")
   add_library(viennahrle_external INTERFACE) # dummy target
