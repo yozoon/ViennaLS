@@ -23,8 +23,8 @@ jobs:
       - name: Check if code adheres to guidelines
         run: |
           if [[ $(git diff-index --name-only --exit-code HEAD) ]]; then
-              echo "Ok"
-          else
               git diff
               exit -1
+          else
+              echo "Ok"
           fi
