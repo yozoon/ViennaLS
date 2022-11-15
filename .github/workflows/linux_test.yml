@@ -1,0 +1,55 @@
+name: Linux Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  repository_dispatch:
+    types: [webhook]
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Debug
+  CACHE_TAG: 0
+
+jobs:
+  linux-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ViennaLS
+        uses: actions/checkout@v3
+
+      - name: Setup Cache for Build Dependencies
+        uses: actions/cache@v3
+        id: cache-dependencies
+        with:
+          key: viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}}
+          path: ${{github.workspace}}/dependencies/Install
+
+      - name: Configure ViennaLS
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Configure ViennaLS (cached dependencies)
+        if: ${{ steps.cache-dependencies.outputs.cache-hit == 'true' }}
+        shell: bash
+        run: |
+          cmake -B ./build \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            -DVTK_DIR=${{github.workspace}}/dependencies/Install/vtk_external/lib/cmake/vtk-9.1/ \
+            -DViennaHRLE_DIR=${{github.workspace}}/dependencies/Install/viennahrle_external/lib/cmake/ViennaHRLE/
+
+      - name: Build Dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: cmake --build ./build --target buildDependencies
+
+      - name: Enable Testing Target
+        run: cmake -B ./build -DVIENNALS_BUILD_TESTS=ON
+
+      - name: Build Tests
+        run: cmake --build ./build
+
+      - name: Run Tests
+        working-directory: ${{github.workspace}}/build
+        run: ctest
