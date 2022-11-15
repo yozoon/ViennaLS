@@ -7,6 +7,9 @@ on:
     branches: [master]
   repository_dispatch:
     types: [webhook]
+  # Run this workflow every Sunday at 18:00 to refresh caches
+  schedule:
+    - cron: "0 18 * * 7"
   workflow_dispatch:
 
 env:
@@ -17,21 +20,31 @@ jobs:
   linux-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout ViennaLS
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Cache for Build Dependencies
+      - name: Clear Cache
+        if: ${{ github.event == "schedule" }}
+        run: |
+          curl \
+            -X DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.PAT_CACHE }}" \
+            https://api.github.com/repos/yozoon/viennals/actions/caches?key=viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './viennals/external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}} \
+          && sleep 10
+
+      - name: Setup Dependency Cache
         uses: actions/cache@v3
         id: cache-dependencies
         with:
           key: viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}}
           path: ${{github.workspace}}/dependencies/Install
 
-      - name: Configure ViennaLS
+      - name: Configure
         if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
         run: cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-      - name: Configure ViennaLS (cached dependencies)
+      - name: Configure (cached dependencies)
         if: ${{ steps.cache-dependencies.outputs.cache-hit == 'true' }}
         shell: bash
         run: |
@@ -53,3 +66,11 @@ jobs:
       - name: Run Tests
         working-directory: ${{github.workspace}}/build
         run: ctest
+
+      - name: Trigger Action on ViennaPS Repository
+        if: ${{ github.event != "schedule" }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PAT_VIENNAPS }}
+          repository: yozoon/ViennaPS
+          event-type: webhook
