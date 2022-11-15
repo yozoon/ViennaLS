@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Clear Cache
-        if: ${{ github.event == "schedule" }}
+        if: ${{ github.event_name == 'schedule' }}
         run: |
           curl \
             -X DELETE \
@@ -68,7 +68,7 @@ jobs:
         run: ctest
 
       - name: Trigger Action on ViennaPS Repository
-        if: ${{ github.event != "schedule" }}
+        if: ${{ github.event_name != 'schedule' }}
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT_VIENNAPS }}
