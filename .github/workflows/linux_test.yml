@@ -7,9 +7,9 @@ on:
     branches: [master]
   repository_dispatch:
     types: [webhook]
-  # Run this workflow every Sunday at 18:00 to refresh caches
+  # Run this workflow every Sunday at 18:30 to refresh caches
   schedule:
-    - cron: "0 18 * * 7"
+    - cron: '30 18 * * 7'
   workflow_dispatch:
 
 env:
