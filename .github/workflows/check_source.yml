@@ -20,8 +20,8 @@ jobs:
       - name: Apply Formatting Script
         run: ./format-project.sh
 
-      - name: Print cmake-format version
-        run: cmake-format --version
+      - name: Print clang-format version
+        run: clang-format --version
 
       - name: Check if code adheres to coding style
         run: |
