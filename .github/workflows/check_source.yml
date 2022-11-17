@@ -20,10 +20,9 @@ jobs:
       - name: Apply Formatting Script
         run: ./format-project.sh
 
-      - name: Print clang-format version
-        run: clang-format --version
-
       - name: Check if code adheres to coding style
+        # Checks if the source adheres to the coding style by checking whether
+        # applying the formatting script changed any files
         run: |
           if [[ $(git diff-index --name-only --exit-code HEAD) ]]; then
               git diff
