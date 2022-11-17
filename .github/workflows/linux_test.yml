@@ -65,7 +65,8 @@ jobs:
 
       - name: Run Tests
         working-directory: ${{github.workspace}}/build
-        run: ctest
+        # Run all tests that are not labeled as benchmark
+        run: ctest -LE '^benchmark$'
 
       - name: Trigger Action on ViennaPS Repository
         if: ${{ github.event_name != 'schedule' }}

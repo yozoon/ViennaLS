@@ -20,7 +20,7 @@ jobs:
       - name: Apply Formatting Script
         run: ./format-project.sh
 
-      - name: Check if code adheres to guidelines
+      - name: Check if code adheres to coding style
         run: |
           if [[ $(git diff-index --name-only --exit-code HEAD) ]]; then
               git diff
