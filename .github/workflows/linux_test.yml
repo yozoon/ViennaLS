@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [master]
   repository_dispatch:
-    types: [webhook]
+    types: [linux-dispatch]
   # Run this workflow every Sunday at 18:30 to refresh caches
   schedule:
     - cron: "30 18 * * 0"
@@ -78,4 +78,4 @@ jobs:
         with:
           token: ${{ secrets.PAT_VIENNAPS }}
           repository: yozoon/ViennaPS
-          event-type: webhook
+          event-type: viennals-update-linux
