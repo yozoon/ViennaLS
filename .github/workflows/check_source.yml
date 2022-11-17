@@ -9,7 +9,7 @@ on:
 
 jobs:
   check-coding-style:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,6 +19,9 @@ jobs:
 
       - name: Apply Formatting Script
         run: ./format-project.sh
+
+      - name: Print cmake-format version
+        run: cmake-format --version
 
       - name: Check if code adheres to coding style
         run: |
