@@ -100,7 +100,7 @@ else() # Automatically detect installation
                  -DVTK_BUILD_TESTING=OFF
                  -DVTK_BUILD_EXAMPLES=OFF
                  -DVTK_BUILD_DOCUMENTATION=OFF
-                 -DVTK_ENABLE_WRAPPING=OFF
+                 -DVTK_WRAP_PYTHON:BOOL=NO
                  -DVTK_SMP_IMPLEMENTATION_TYPE:STRING="OpenMP"
                  -DVTK_GROUP_ENABLE_Rendering:BOOL=NO
                  -DVTK_GROUP_ENABLE_Imaging:BOOL=NO
