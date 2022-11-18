@@ -41,7 +41,7 @@ jobs:
 
       - name: Configure ViennaLS
         if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
-        run: cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DVTK_DIR=${{env.PYTHON_SITELIB}}
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Configure ViennaLS (cached dependencies)
         if: ${{ steps.cache-dependencies.outputs.cache-hit == 'true' }}
