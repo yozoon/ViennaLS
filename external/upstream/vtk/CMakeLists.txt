@@ -82,8 +82,8 @@ else() # Automatically detect installation
     ExternalProject_Add(
       vtk_external
       GIT_REPOSITORY https://gitlab.kitware.com/vtk/vtk.git
-      # Hash of tags/v9.2.2
-      GIT_TAG 6f595f6c9664038882dbda02b11f192aee62e681
+      # Hash of tags/v9.1.0
+      GIT_TAG 285daeedd58eb890cb90d6e907d822eea3d2d092
       GIT_SHALLOW true
       GIT_SUBMODULES ""
       TMP_DIR "${DEPENDENCIES_DIR}/tmp/${VTK_EXTERNAL_INSTALL}"
@@ -100,7 +100,7 @@ else() # Automatically detect installation
                  -DVTK_BUILD_TESTING=OFF
                  -DVTK_BUILD_EXAMPLES=OFF
                  -DVTK_BUILD_DOCUMENTATION=OFF
-                 -DVTK_WRAP_PYTHON:BOOL=NO
+                 -DVTK_ENABLE_WRAPPING=OFF
                  -DVTK_SMP_IMPLEMENTATION_TYPE:STRING="OpenMP"
                  -DVTK_GROUP_ENABLE_Rendering:BOOL=NO
                  -DVTK_GROUP_ENABLE_Imaging:BOOL=NO

@@ -1,0 +1,72 @@
+name: Linux
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  repository_dispatch:
+    types: [windows-dispatch]
+  # Run this workflow every Sunday at 18:30 to refresh caches
+  schedule:
+    - cron: "30 18 * * 0"
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Debug
+  CACHE_TAG: 0
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Clear Cache
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          curl -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.PAT_CACHE }}" https://api.github.com/repos/yozoon/viennals/actions/caches?key=viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}}
+
+      - name: Setup Dependency Cache
+        uses: actions/cache@v3
+        id: cache-dependencies
+        with:
+          key: viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}}
+          path: ${{github.workspace}}/dependencies/Install
+
+      - name: Configure ViennaLS
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DVTK_DIR=${{env.PYTHON_SITELIB}}
+
+      - name: Configure ViennaLS (cached dependencies)
+        if: ${{ steps.cache-dependencies.outputs.cache-hit == 'true' }}
+        shell: bash
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVTK_DIR=${{github.workspace}}/dependencies/Install/vtk_external/lib/cmake/vtk-9.1/ -DViennaHRLE_DIR=${{github.workspace}}/dependencies/Install/viennahrle_external/lib/cmake/ViennaHRLE/
+      
+      - name: Build Dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: cmake --build ${{github.workspace}}/build --target buildDependencies
+
+      - name: Enable Testing Target
+        run: cmake -B ${{github.workspace}}/build -DVIENNALS_BUILD_TESTS=ON
+
+      - name: Build Tests
+        run: cmake --build ${{github.workspace}}/build
+
+      - name: Run Tests
+        working-directory: ${{github.workspace}}/build
+        # Run all tests that are not labeled as benchmark
+        run: ctest -LE '^benchmark$'
+
+      # - name: Trigger Action on ViennaPS Repository
+      #   if: ${{ github.event_name != 'schedule' }}
+      #   uses: peter-evans/repository-dispatch@v2
+      #   with:
+      #     token: ${{ secrets.PAT_VIENNAPS }}
+      #     repository: yozoon/ViennaPS
+      #     event-type: viennals-update-windows
