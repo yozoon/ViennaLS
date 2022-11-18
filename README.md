@@ -1,5 +1,6 @@
 # ViennaLS
 [![Linux](https://github.com/yozoon/ViennaLS/actions/workflows/linux_test.yml/badge.svg)](https://github.com/yozoon/ViennaLS/actions/workflows/linux_test.yml)
+[![Windows](https://github.com/yozoon/ViennaLS/actions/workflows/windows_test.yml/badge.svg)](https://github.com/yozoon/ViennaLS/actions/workflows/windows_test.yml)
 
 ViennaLS is a header-only C++ level set library developed for high performance topography simulations. The main design goals are simplicity and efficiency, tailored towards scientific simulations. ViennaLS can also be used for visualisation applications, although this is not the main design target.
 
