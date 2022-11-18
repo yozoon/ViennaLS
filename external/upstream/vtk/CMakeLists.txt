@@ -124,18 +124,18 @@ else() # Automatically detect installation
                  -DVTK_MODULE_ENABLE_VTK_FiltersGeneral:BOOL=YES
                  -DVTK_MODULE_ENABLE_VTK_FiltersGeometry:BOOL=YES
       BUILD_COMMAND ${CMAKE_COMMAND} --build . --parallel ${NPROC}
-      INSTALL_COMMAND ${CMAKE_COMMAND} --install .
-      # INSTALL_COMMAND ""
+      # INSTALL_COMMAND ${CMAKE_COMMAND} --install .
+      INSTALL_COMMAND ""
       UPDATE_COMMAND ""
       USES_TERMINAL_DOWNLOAD 1
       USES_TERMINAL_UPDATE 1
       GIT_PROGRESS 1)
 
     # Get install directory
-    ExternalProject_Get_Property(vtk_external INSTALL_DIR)
+    ExternalProject_Get_Property(vtk_external BINARY_DIR)
 
     # Set the required variables
-    set(VTK_DIR "${INSTALL_DIR}")
+    set(VTK_DIR "${BINARY_DIR}")
 
     set(VTK_VERSION 9.1)
     set(VTK_INCLUDE_DIRS "${VTK_DIR}/include/vtk-${VTK_VERSION}")
