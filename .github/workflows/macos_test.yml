@@ -48,7 +48,14 @@ jobs:
 
       - name: Configure
         if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
-        run: cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: |
+          cmake -B ./build \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
+            -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
+            -DOpenMP_C_LIB_NAMES="omp" \
+            -DOpenMP_CXX_LIB_NAMES="omp" \
+            -DOpenMP_omp_LIBRARY="$(brew --prefix libomp)/lib/libomp.a"
 
       - name: Configure (cached dependencies)
         if: ${{ steps.cache-dependencies.outputs.cache-hit == 'true' }}
