@@ -82,8 +82,8 @@ else() # Automatically detect installation
     ExternalProject_Add(
       vtk_external
       GIT_REPOSITORY https://gitlab.kitware.com/vtk/vtk.git
-      # Hash of tags/v9.1.0
-      GIT_TAG 0db33cd00a9ea4e03d866202ac5287ae063b2c40
+      # Hash of tags/v9.2.2
+      GIT_TAG 6f595f6c9664038882dbda02b11f192aee62e681
       GIT_SHALLOW true
       GIT_SUBMODULES ""
       TMP_DIR "${DEPENDENCIES_DIR}/tmp/${VTK_EXTERNAL_INSTALL}"
