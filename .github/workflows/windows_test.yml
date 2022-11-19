@@ -47,18 +47,18 @@ jobs:
 
       - name: Build Dependencies
         if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
-        run: cmake --build ${{github.workspace}}/build --target buildDependencies
+        run: cmake --build ${{github.workspace}}/build --target buildDependencies --config ${{env.BUILD_TYPE}}
 
       - name: Enable Testing Target
-        run: cmake -B ${{github.workspace}}/build -DVIENNALS_BUILD_TESTS=ON
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVIENNALS_BUILD_TESTS=ON
 
       - name: Build Tests
-        run: cmake --build ${{github.workspace}}/build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
       - name: Run Tests
         working-directory: ${{github.workspace}}/build
         # Run all tests that are not labeled as benchmark
-        run: ctest -LE '^benchmark$'
+        run: ctest -LE '^benchmark$' -C ${{env.BUILD_TYPE}}
 
       - name: Trigger Action on ViennaPS Repository
         if: ${{ github.event_name != 'schedule' }}
