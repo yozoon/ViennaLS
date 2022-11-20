@@ -43,7 +43,7 @@ jobs:
             ${{github.workspace}}/dependencies/Install
 
       - name: Add VTK to PATH
-        run: echo "${{github.workspace}}\dependencies\Build\vtk_external\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        run: echo "${{github.workspace}}\dependencies\Build\vtk_external\bin\${{env.BUILD_TYPE}}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Configure ViennaLS
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -61,7 +61,7 @@ jobs:
       - name: Run Tests
         working-directory: ${{github.workspace}}/build
         # Run all tests that are not labeled as benchmark
-        run: ctest -LE "^benchmark$" -C ${{env.BUILD_TYPE}} --output-on-failure
+        run: ctest -LE "^benchmark$" -C ${{env.BUILD_TYPE}}
 
       - name: Trigger Action on ViennaPS Repository
         if: ${{ github.event_name != 'schedule' }}
