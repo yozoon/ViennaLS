@@ -60,8 +60,8 @@ jobs:
 
       - name: Run Tests
         working-directory: ${{github.workspace}}/build
-        # Run all tests that are not labeled as benchmark
-        run: ctest -LE "^benchmark$" -C ${{env.BUILD_TYPE}}
+        # Run all tests except those that are labeled as benchmark
+        run: ctest -LE "^benchmark$" -j 2 --output-on-failure --timeout 300 -C ${{env.BUILD_TYPE}}
 
       - name: Trigger Action on ViennaPS Repository
         if: ${{ github.event_name != 'schedule' }}
