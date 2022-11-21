@@ -1,20 +1,13 @@
 name: Windows
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-  repository_dispatch:
-    types: [windows-dispatch]
-  # Run this workflow every Sunday at 18:30 to refresh caches
-  schedule:
-    - cron: "30 18 * * 0"
-  workflow_dispatch:
+  workflow_run:
+    workflows: [Build Dependencies on Windows]
+    types:
+      - completed
 
 env:
   BUILD_TYPE: Debug
-  CACHE_TAG: 0
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,36 +20,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Clear Cache
-        if: ${{ github.event_name == 'schedule' }}
-        run: |
-          curl -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.PAT_CACHE }}" https://api.github.com/repos/yozoon/viennals/actions/caches?key=viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}}
-
-      - name: Setup Dependency Cache
+      - name: Restore build cache
         uses: actions/cache@v3
-        id: cache-dependencies
+        id: viennals-dependency-cache
         with:
-          key: viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}}
+          key: viennals-dependency-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}
           path: |
             ${{github.workspace}}/dependencies/Source
             ${{github.workspace}}/dependencies/Build
             ${{github.workspace}}/dependencies/Install
 
-      - name: Add VTK to PATH
-        run: echo "${{github.workspace}}\dependencies\Build\vtk_external\bin\${{env.BUILD_TYPE}}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Configure ViennaLS
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-      - name: Build Dependencies
-        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
-        run: cmake --build ${{github.workspace}}/build --target buildDependencies --config ${{env.BUILD_TYPE}}
-
-      - name: Enable Testing Target
+      - name: Configure
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVIENNALS_BUILD_TESTS=ON
 
-      - name: Build Tests
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build
+
+      - name: Add VTK to PATH
+        run: echo "${{github.workspace}}\dependencies\Build\vtk_external\bin\${{env.BUILD_TYPE}}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Run Tests
         working-directory: ${{github.workspace}}/build
@@ -64,7 +45,6 @@ jobs:
         run: ctest -LE "^benchmark$" -j 2 --output-on-failure --timeout 300 -C ${{env.BUILD_TYPE}}
 
       - name: Trigger Action on ViennaPS Repository
-        if: ${{ github.event_name != 'schedule' }}
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT_VIENNAPS }}

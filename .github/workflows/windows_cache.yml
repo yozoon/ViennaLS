@@ -1,0 +1,46 @@
+name: Build Dependencies on Windows
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  # Run this workflow every Sunday at 18:30 to refresh caches
+  schedule:
+    - cron: "30 18 * * 0"
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Debug
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup-viennals:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Clear Cache
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          curl -X DELETE -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.PAT_CACHE }}" https://api.github.com/repos/yozoon/viennals/actions/caches?key=viennals-dependency-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}
+
+      - name: Setup Cache for Build Dependencies
+        uses: actions/cache@v3
+        id: viennals-dependency-cache
+        with:
+          key: viennals-dependency-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}
+          path: |
+            ${{github.workspace}}/dependencies/Source
+            ${{github.workspace}}/dependencies/Build
+            ${{github.workspace}}/dependencies/Install
+
+      - name: Configure
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build
