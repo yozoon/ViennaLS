@@ -3,7 +3,7 @@
 #include <lsCheck.hpp>
 
 // Fix for builds on Windows since MSVC does not expose __PRETTY_FUNCTION__
-#if !defined(__PRETTY_FUNCTION__) && !defined(__GNUC__)
+#ifdef _MSC_VER
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
