@@ -45,8 +45,12 @@ jobs:
           token: ${{ secrets.PAT_CACHE }}
           repository: ${{env.ORG}}/ViennaLS
 
+      - name: Store cache refresh key in ENV
+        shell: bash
+        run: echo "CACHE_REFRESH=${{ github.event_name == 'schedule' || steps.cache-check.outputs.exists != 'true' }}" >> $GITHUB_ENV
+
       - name: Setup Cache for Build Dependencies
-        if: ${{steps.cache-check.outputs.exists != 'true'}}
+        if: ${{ env.CACHE_REFRESH == 'true' }}
         uses: actions/cache@v3
         id: viennals-dependency-cache
         with:
@@ -57,9 +61,9 @@ jobs:
             ${{github.workspace}}/dependencies/Install
 
       - name: Configure
-        if: ${{steps.cache-check.outputs.exists != 'true'}}
+        if: ${{ env.CACHE_REFRESH == 'true' }}
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build
-        if: ${{steps.cache-check.outputs.exists != 'true'}}
+        if: ${{ env.CACHE_REFRESH == 'true' }}
         run: cmake --build ${{github.workspace}}/build
