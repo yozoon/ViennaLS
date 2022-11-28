@@ -1,4 +1,4 @@
-name: Build Dependencies on Windows
+name: Build Dependencies on Linux
 
 on:
   push:
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   setup-viennals:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -68,3 +68,5 @@ jobs:
       - name: Build
         if: ${{ env.CACHE_REFRESH == 'true' }}
         run: cmake --build ${{github.workspace}}/build
+
+  

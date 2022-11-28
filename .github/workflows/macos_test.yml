@@ -1,20 +1,14 @@
 name: macOS
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-  repository_dispatch:
-    types: [macos-dispatch]
-  # Run this workflow every Sunday at 18:30 to refresh caches
-  schedule:
-    - cron: "30 18 * * 0"
-  workflow_dispatch:
+  workflow_run:
+    workflows: [Build Dependencies on macOS]
+    types:
+      - completed
 
 env:
   BUILD_TYPE: Debug
-  CACHE_TAG: 0
+  ORG: yozoon
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,25 +17,16 @@ concurrency:
 jobs:
   macos-test:
     runs-on: macos-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Clear Cache
-        if: ${{ github.event_name == 'schedule' }}
-        run: |
-          curl \
-            -X DELETE \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.PAT_CACHE }}" \
-            https://api.github.com/repos/yozoon/viennals/actions/caches?key=viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}} \
-          && sleep 10
 
       - name: Setup Dependency Cache
         uses: actions/cache@v3
         id: cache-dependencies
         with:
-          key: viennals-dependencies-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}-${{env.CACHE_TAG}}
+          key: viennals-dependency-cache-${{ runner.os }}-${{env.BUILD_TYPE}}-${{ hashFiles( './external/upstream/**CMakeLists.txt' ) }}
           path: |
             ${{github.workspace}}/dependencies/Source
             ${{github.workspace}}/dependencies/Build
@@ -50,19 +35,13 @@ jobs:
       - name: Configure
         run: |
           cmake -B ./build \
-            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-            -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
-            -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
-            -DOpenMP_C_LIB_NAMES="omp" \
-            -DOpenMP_CXX_LIB_NAMES="omp" \
-            -DOpenMP_omp_LIBRARY="$(brew --prefix libomp)/lib/libomp.a"
-
-      - name: Build Dependencies
-        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
-        run: cmake --build ./build --target buildDependencies
-
-      - name: Enable Testing Target
-        run: cmake -B ./build -DVIENNALS_BUILD_TESTS=ON
+            -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            -D VIENNALS_BUILD_TESTS=ON \
+            -D OpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
+            -D OpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
+            -D OpenMP_C_LIB_NAMES="omp" \
+            -D OpenMP_CXX_LIB_NAMES="omp" \
+            -D OpenMP_omp_LIBRARY="$(brew --prefix libomp)/lib/libomp.a"
 
       - name: Build Tests
         run: cmake --build ./build
@@ -73,7 +52,6 @@ jobs:
         run: ctest -LE '^benchmark$'
 
       - name: Trigger Action on ViennaPS Repository
-        if: ${{ github.event_name != 'schedule' }}
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT_VIENNAPS }}

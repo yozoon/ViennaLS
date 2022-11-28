@@ -1,4 +1,4 @@
-name: Build Dependencies on Windows
+name: Build Dependencies on macOS
 
 on:
   push:
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   setup-viennals:
-    runs-on: windows-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
@@ -63,7 +63,14 @@ jobs:
 
       - name: Configure
         if: ${{ env.CACHE_REFRESH == 'true' }}
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: |
+          cmake -B ${{github.workspace}}/build \
+            -D  CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            -D  OpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
+            -D  OpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
+            -D  OpenMP_C_LIB_NAMES="omp" \
+            -D  OpenMP_CXX_LIB_NAMES="omp" \
+            -D  OpenMP_omp_LIBRARY="$(brew --prefix libomp)/lib/libomp.a"
 
       - name: Build
         if: ${{ env.CACHE_REFRESH == 'true' }}
