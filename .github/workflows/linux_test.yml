@@ -8,7 +8,6 @@ on:
 
 env:
   BUILD_TYPE: Debug
-  ORG: yozoon
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -50,5 +49,5 @@ jobs:
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT_VIENNAPS }}
-          repository: ${{env.ORG}}/ViennaPS
+          repository: ${{github.repository_owner}}/ViennaPS
           event-type: viennals-update-linux

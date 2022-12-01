@@ -182,7 +182,7 @@ In order to use shared libraries, use
 ```
 cmake .. -DVIENNALS_PRECOMPILE_HEADERS=ON
 ```
-If ViennaLS was build with shared libraries and you use ViennaLS in your project (see above), CMake will automatically link them to your project. In order to build a release of your own project with better runtime performance, but
+If ViennaLS was built with shared libraries and you use ViennaLS in your project (see above), CMake will automatically link them to your project. In order to build a release of your own project with better runtime performance, but
 longer build times, use the following CMake option when building a release:
 ```
 VIENNALS_USE_PRECOMPILED=OFF
