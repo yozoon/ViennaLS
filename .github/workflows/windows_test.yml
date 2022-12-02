@@ -49,5 +49,5 @@ jobs:
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT_VIENNAPS }}
-          repository: yozoon/ViennaPS
+          repository: ${{github.repository_owner}}/ViennaPS
           event-type: viennals-update-windows
