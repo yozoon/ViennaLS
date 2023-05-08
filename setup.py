@@ -229,9 +229,6 @@ setup(
     setup_requires=[
         'mypy',
     ],
-    requires=[
-        'vtk',
-    ],
     # extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.7",
 )

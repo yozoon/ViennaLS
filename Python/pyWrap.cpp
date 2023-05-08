@@ -18,6 +18,7 @@
 #include <pybind11/stl.h>
 
 // all header files which define API functions
+#include <hrleGrid.hpp>
 #include <lsAdvect.hpp>
 #include <lsBooleanOperation.hpp>
 #include <lsCalculateCurvatures.hpp>
@@ -275,7 +276,16 @@ PYBIND11_MODULE(VIENNALS_MODULE_NAME, module) {
       .def("setMaxValue", &lsCalculateCurvatures<T, D>::setMaxValue,
            "Curvatures will be calculated for all LS values < maxValue.")
       .def("apply", &lsCalculateCurvatures<T, D>::apply,
-           "Perform normal vector calculation.");
+           "Perform normal vector calculation.")
+      .def_property_readonly_static(
+          "meanCurvatureLabel",
+          [](pybind11::object /* self */) {
+            return lsCalculateCurvatures<T, D>::meanCurvatureLabel;
+          })
+      .def_property_readonly_static(
+          "gaussianCurvatureLabel", [](pybind11::object /* self */) {
+            return lsCalculateCurvatures<T, D>::gaussianCurvatureLabel;
+          });
 
   // enums
   pybind11::enum_<lsCurvatureEnum>(module, "lsCurvatureEnum")
@@ -297,7 +307,11 @@ PYBIND11_MODULE(VIENNALS_MODULE_NAME, module) {
       .def("setLevelSet", &lsCalculateNormalVectors<T, D>::setLevelSet,
            "Set levelset for which to calculate normal vectors.")
       .def("apply", &lsCalculateNormalVectors<T, D>::apply,
-           "Perform normal vector calculation.");
+           "Perform normal vector calculation.")
+      .def_property_readonly_static(
+          "normalVectorsLabel", [](pybind11::object /* self */) {
+            return lsCalculateNormalVectors<T, D>::normalVectorsLabel;
+          });
 
   // lsCheck
   pybind11::class_<lsCheck<T, D>, lsSmartPointer<lsCheck<T, D>>>(module,
@@ -356,11 +370,25 @@ PYBIND11_MODULE(VIENNALS_MODULE_NAME, module) {
       .value("CURVATURE", lsFeatureDetectionEnum::CURVATURE)
       .value("NORMALS_ANGLE", lsFeatureDetectionEnum::NORMALS_ANGLE);
 
-  // lsDomain
-  pybind11::class_<lsDomain<T, D>, lsSmartPointer<lsDomain<T, D>>>(module,
-                                                                   "lsDomain")
+  // hrleGrid
+  pybind11::class_<hrleGrid<D>, lsSmartPointer<hrleGrid<D>>>(module, "hrleGrid")
       // constructors
-      .def(pybind11::init(&lsSmartPointer<lsDomain<T, D>>::New<>))
+      .def(pybind11::init(&lsSmartPointer<hrleGrid<D>>::New<>))
+      //  .def("getGridExtent", &hrleGrid<D>::getGridExtent,
+      //       "Returns the grid extent along the provided axis.")
+      //  .def("getMinIndex", &hrleGrid<D>::getMinIndex,
+      //       "Returns the minimum index along the provided axis.")
+      //  .def("getMaxIndex", &hrleGrid<D>::getMaxIndex,
+      //       "Returns the maximum index along the provided axis.")
+      //  .def("getBoundaryConditions", &hrleGrid<D>::getBoundaryConditions,
+      //       "Returns a list of the boundary conditions of each axis.");
+      .def("getGridDelta", &hrleGrid<D>::getGridDelta, "Get the grid delta");
+
+  // lsDomain
+  pybind11::class_<lsDomain<T, D>, lsSmartPointer<lsDomain<T, D>>>(
+          module, "lsDomain")
+  // constructors
+  .def(pybind11::init(&lsSmartPointer<lsDomain<T, D>>::New<>))
       .def(pybind11::init(&lsSmartPointer<lsDomain<T, D>>::New<hrleCoordType>))
       .def(pybind11::init(
           &lsSmartPointer<lsDomain<T, D>>::New<hrleCoordType *,
@@ -378,6 +406,10 @@ PYBIND11_MODULE(VIENNALS_MODULE_NAME, module) {
       .def(pybind11::init(&lsSmartPointer<lsDomain<T, D>>::New<
                           lsDomain<T, D>::PointValueVectorType, hrleCoordType *,
                           lsDomain<T, D>::BoundaryType *, hrleCoordType>))
+     .def(pybind11::init([](lsSmartPointer<typename
+                          lsDomain<T, D>::GridType> passedGrid) {
+                              auto grid = *passedGrid;
+    return lsSmartPointer<lsDomain<T, D>>::New(grid);}))
       .def(pybind11::init(&lsSmartPointer<lsDomain<T, D>>::New<
                           lsSmartPointer<lsDomain<T, D>> &>))
       // methods
@@ -396,18 +428,26 @@ PYBIND11_MODULE(VIENNALS_MODULE_NAME, module) {
            "stored around the explicit surface.")
       .def("clearMetaData", &lsDomain<T, D>::clearMetaData,
            "Clear all metadata stored in the level set.")
+      .def("getGrid",  [](lsDomain<T, D> &d) {
+    return lsSmartPointer<hrleGrid<D>>::New(d.getGrid());}, "Retrieve the hrleGrid instance")
       // allow filehandle to be passed and default to python standard output
-      .def("print", [](lsDomain<T, D>& d, pybind11::object fileHandle) {
-          if (!(pybind11::hasattr(fileHandle,"write") &&
-          pybind11::hasattr(fileHandle,"flush") )){
-               throw pybind11::type_error("MyClass::read_from_file_like_object(file): incompatible function argument:  `file` must be a file-like object, but `"
-                                        +(std::string)(pybind11::repr(fileHandle))+"` provided"
-               );
-          }
-          pybind11::detail::pythonbuf buf(fileHandle);
-          std::ostream stream(&buf);
-          d.print(stream);
-          }, pybind11::arg("stream") = pybind11::module::import("sys").attr("stdout"));
+      .def(
+          "print",
+          [](lsDomain<T, D> &d, pybind11::object fileHandle) {
+    if (!(pybind11::hasattr(fileHandle, "write") &&
+          pybind11::hasattr(fileHandle, "flush"))) {
+      throw pybind11::type_error(
+          "MyClass::read_from_file_like_object(file): incompatible "
+          "function argument:  `file` must be a file-like object, but "
+          "`" +
+          (std::string)(pybind11::repr(fileHandle)) + "` provided");
+    }
+    pybind11::detail::pythonbuf buf(fileHandle);
+    std::ostream stream(&buf);
+    d.print(stream);
+          },
+          pybind11::arg("stream") =
+              pybind11::module::import("sys").attr("stdout"));
 
   // enums
   pybind11::enum_<lsBoundaryConditionEnum<D>>(module, "lsBoundaryConditionEnum")
