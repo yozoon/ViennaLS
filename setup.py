@@ -252,5 +252,5 @@ setup(
         'mypy',
     ],
     # extras_require={"test": ["pytest>=6.0"]},
-    python_requires=">=3.7",
+    python_requires=">=3.6",
 )
