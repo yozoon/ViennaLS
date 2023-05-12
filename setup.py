@@ -196,12 +196,10 @@ class CMakeBuild(build_ext):
                     *process_args,
                     "-o",
                     ".",
-                    # "--include-private",
                     "-p",
                     "viennals2d",
                 ],
                 cwd=f"{extdir}",
-                check=True,
                 # Don't generate __pycache__ directories
                 env=dict(os.environ, **{
                     "PYTHONDONTWRITEBYTECODE": "1",
@@ -213,12 +211,10 @@ class CMakeBuild(build_ext):
                     *process_args,
                     "-o",
                     ".",
-                    # "--include-private",
                     "-p",
                     "viennals3d",
                 ],
                 cwd=f"{extdir}",
-                check=True,
                 # Don't generate __pycache__ directories
                 env=dict(os.environ, **{
                     "PYTHONDONTWRITEBYTECODE": "1",
