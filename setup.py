@@ -187,19 +187,45 @@ class CMakeBuild(build_ext):
             # stubgen can be run on packages defined there.
             sys.path.insert(0, str(extdir))
 
-            # Don't create __pycache__ directory
-            sys.dont_write_bytecode = True
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "mypy.stubgen",
+                    "-o",
+                    ".",
+                    # "--include-private",
+                    "-p",
+                    "viennaps2d",
+                ],
+                cwd=f"{extdir}",
+                check=True,
+                # Don't generate __pycache__ directories
+                env=dict(os.environ, **{
+                    "PYTHONDONTWRITEBYTECODE": "1",
+                }),
+            )
 
-            # Initialize the stubgen parser options
-            options = stubgen.parse_options([
-                "-o",
-                str(os.path.abspath(extdir)), "-p", "viennals2d", "-p", "viennals3d"
-            ])
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "mypy.stubgen",
+                    "-o",
+                    ".",
+                    # "--include-private",
+                    "-p",
+                    "viennaps3d",
+                ],
+                cwd=f"{extdir}",
+                check=True,
+                # Don't generate __pycache__ directories
+                env=dict(os.environ, **{
+                    "PYTHONDONTWRITEBYTECODE": "1",
+                }),
+            )
 
-            # Generate the stubs
-            stubgen.generate_stubs(options)
-
-            # Remove mypy_cache, if it exists
+            # Remove .mypy_cache, if it exists
             if os.path.exists(os.path.join(extdir, ".mypy_cache")):
                 shutil.rmtree(os.path.join(extdir, ".mypy_cache"))
         except ModuleNotFoundError:

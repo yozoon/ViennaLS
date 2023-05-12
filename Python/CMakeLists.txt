@@ -34,8 +34,10 @@ target_compile_definitions(
   ${VIENNALS_PYTHON_MODULE_NAME_2D}
   PRIVATE -DVIENNALS_PYTHON_DIMENSION=2 -DVIENNALS_MODULE_NAME=${VIENNALS_PYTHON_MODULE_NAME_2D})
 
-set(MODULE_NAME ${VIENNALS_PYTHON_MODULE_NAME_2D})
-configure_file(__init__.py.in ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/__init__.py)
+if(DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  set(MODULE_NAME ${VIENNALS_PYTHON_MODULE_NAME_2D})
+  configure_file(__init__.py.in ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/__init__.py)
+endif()
 
 # ##################################################################################################
 # BUILD 3D PYTHON LIBRARY
@@ -50,5 +52,7 @@ target_compile_definitions(
   ${VIENNALS_PYTHON_MODULE_NAME_3D}
   PRIVATE -DVIENNALS_PYTHON_DIMENSION=3 -DVIENNALS_MODULE_NAME=${VIENNALS_PYTHON_MODULE_NAME_3D})
 
-set(MODULE_NAME ${VIENNALS_PYTHON_MODULE_NAME_3D})
-configure_file(__init__.py.in ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/__init__.py)
+if(DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  set(MODULE_NAME ${VIENNALS_PYTHON_MODULE_NAME_3D})
+  configure_file(__init__.py.in ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/__init__.py)
+endif()
