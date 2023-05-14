@@ -187,13 +187,9 @@ class CMakeBuild(build_ext):
             # stubgen can be run on packages defined there.
             sys.path.insert(0, str(extdir))
 
-            process_args = ["stubgen"] if sys.platform == "win32" else [
-                sys.executable, "-m", "mypy.stubgen"
-            ]
-
             subprocess.run(
                 [
-                    *process_args,
+                    "stubgen",
                     "-o",
                     ".",
                     "-p",
@@ -208,7 +204,7 @@ class CMakeBuild(build_ext):
 
             subprocess.run(
                 [
-                    *process_args,
+                    "stubgen",
                     "-o",
                     ".",
                     "-p",
