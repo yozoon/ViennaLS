@@ -20,3 +20,4 @@ _generate/
 *.eggs/
 *env*
 .mypy_cache/
+.eggs/
