@@ -5,6 +5,7 @@
 
 #include <array>
 #include <vector>
+#include <cstdint>
 
 #include <lsConcepts.hpp>
 #include <lsMessage.hpp>
